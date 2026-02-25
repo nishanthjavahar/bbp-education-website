@@ -177,7 +177,7 @@ class Event(db.Model):
     description = db.Column(db.Text, nullable=False)
     event_date = db.Column(db.Date, nullable=False)
     cover_image = db.Column(db.String(200))   # 👈 ADD THIS
-    image = db.Column(db.String(100))
+    image = db.Column(db.String(500))
     icon = db.Column(db.String(255), nullable=True)
 
 class EventImage(db.Model):
