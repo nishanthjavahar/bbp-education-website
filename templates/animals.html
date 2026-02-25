@@ -85,11 +85,18 @@
         {% for animal in animals %}
         <div class="card">
 
-            {% if animal.image %}
-    <img src="{{ animal.image }}"
-         alt="{{ animal.common_name }}"
-         onclick="openAnimalModal('{{ animal.image }}')"
-         style="cursor:pointer;">
+     {% if animal.image %}
+    {% if animal.image.startswith('http') %}
+        <img src="{{ animal.image }}"
+             alt="{{ animal.common_name }}"
+             onclick="openAnimalModal('{{ animal.image }}')"
+             style="cursor:pointer;">
+    {% else %}
+        <img src="{{ url_for('static', filename='images/animals/' ~ animal.image) }}"
+             alt="{{ animal.common_name }}"
+             onclick="openAnimalModal('{{ url_for('static', filename='images/animals/' ~ animal.image) }}')"
+             style="cursor:pointer;">
+    {% endif %}
 {% else %}
             <img src="{{ url_for('static', filename='images/default-animal.png') }}"
                  alt="No image available">
