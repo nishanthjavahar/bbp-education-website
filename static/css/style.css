@@ -337,7 +337,41 @@ main {
     margin: 0;
     font-size: 16px;
 }
+.hero {
+    padding: 60px 20px;
+}
+@media (max-width: 768px) {
 
+    .hero {
+        padding: 40px 15px;
+        border-radius: 30px;
+    }
+
+    .hero h1 {
+        font-size: 24px;
+        line-height: 1.3;
+    }
+
+    .hero p {
+        font-size: 16px;
+    }
+
+}
+.positioned-text {
+    position: absolute;
+    right: 100px;
+}
+@media (max-width: 768px) {
+    .positioned-text {
+        position: static;
+        text-align: center;
+        margin-top: 10px;
+    }
+}
+img {
+    max-width: 100%;
+    height: auto;
+}
 /* =================================
    EXPLORE SECTION
 ================================= */
@@ -567,6 +601,34 @@ button, .btn {
 
     .admin-dashboard {
         flex-direction: column;
+    }
+
+}
+/* ===== MOBILE NAV FIX ===== */
+@media (max-width: 768px) {
+
+    .navbar {
+        flex-direction: column;
+        align-items: center;
+        padding: 15px;
+        text-align: center;
+    }
+
+    .logo-section {
+        margin-bottom: 10px;
+    }
+
+    .nav-links {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+    }
+
+    .nav-links a {
+        display: block;
+        padding: 8px 0;
+        font-size: 16px;
     }
 
 }
