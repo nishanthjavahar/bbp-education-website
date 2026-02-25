@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+{% block title %}Gallery{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('home') }}"
+       style="
+            display:inline-flex;
+            align-items:center;
+            gap:8px;
+            padding:8px 18px;
+            border-radius:30px;
+            background:#F3F6F2;
+            border:1px solid #DCE5DC;
+            color:#2E7D32;
+            font-size:14px;
+            font-weight:500;
+            text-decoration:none;
+            transition:all 0.25s ease;
+       "
+       onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.08)'"
+       onmouseout="this.style.boxShadow='none'">
+
+        <span>←</span>
+        Back to Home
+    </a>
+
+<h2 style="text-align:center; margin:40px 0;">Gallery</h2>
+
+<!-- ================= GRID ================= -->
+<div class="gallery-container">
+    {% for img in images %}
+        <img class="gallery-img"
+             onclick="openModal({{ loop.index0 }})"
+             src="{{ url_for('static', filename='uploads/gallery/' ~ img.image) }}"
+             alt="Gallery Image">
+    {% else %}
+        <p style="text-align:center;">No images available.</p>
+    {% endfor %}
+</div>
+
+<!-- ================= MODAL ================= -->
+<div id="galleryModal" class="modal">
+    <span class="close-btn" onclick="closeModal()">&times;</span>
+
+    <button class="nav-btn prev" onclick="changeImage(-1)">❮</button>
+
+    <img id="modalImage" class="modal-content">
+
+    <button class="nav-btn next" onclick="changeImage(1)">❯</button>
+</div>
+<a href="{{ url_for('home') }}"
+       style="
+            display:inline-flex;
+            align-items:center;
+            gap:8px;
+            padding:8px 18px;
+            border-radius:30px;
+            background:#F3F6F2;
+            border:1px solid #DCE5DC;
+            color:#2E7D32;
+            font-size:14px;
+            font-weight:500;
+            text-decoration:none;
+            transition:all 0.25s ease;
+       "
+       onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.08)'"
+       onmouseout="this.style.boxShadow='none'">
+
+        <span>←</span>
+        Back to Home
+    </a>
+
+<style>
+
+/* ===== Grid ===== */
+.gallery-container{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+    gap:20px;
+    padding:0 40px 60px;
+}
+
+.gallery-img{
+    width:100%;
+    height:220px;
+    object-fit:cover;
+    border-radius:12px;
+    cursor:pointer;
+    transition:0.2s ease;
+}
+
+.gallery-img:hover{
+    transform:scale(1.03);
+}
+
+/* ===== Modal ===== */
+.modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.85);
+    z-index:9999;
+    justify-content:center;
+    align-items:center;
+}
+
+.modal.active{
+    display:flex;
+}
+
+.modal-content{
+    max-width:90vw;
+    max-height:85vh;
+    object-fit:contain;
+    border-radius:12px;
+    box-shadow:0 20px 50px rgba(0,0,0,0.4);
+}
+
+/* Close */
+.close-btn{
+    position:absolute;
+    top:20px;
+    right:30px;
+    font-size:35px;
+    color:white;
+    cursor:pointer;
+}
+
+/* Navigation */
+.nav-btn{
+    position:absolute;
+    top:50%;
+    transform:translateY(-50%);
+    font-size:45px;
+    background:rgba(255,255,255,0.1);
+    border:none;
+    color:white;
+    cursor:pointer;
+    padding:15px 20px;
+    border-radius:50%;
+    transition:0.2s;
+}
+
+.nav-btn:hover{
+    background:rgba(255,255,255,0.25);
+}
+
+.prev{ left:30px; }
+.next{ right:30px; }
+
+/* Mobile */
+@media(max-width:768px){
+    .modal-content{
+        max-width:95vw;
+        max-height:75vh;
+    }
+
+    .nav-btn{
+        font-size:30px;
+        padding:10px 15px;
+    }
+
+    .close-btn{
+        font-size:28px;
+        right:20px;
+    }
+}
+
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+
+let currentIndex = 0;
+let imageList = document.querySelectorAll(".gallery-img");
+const modal = document.getElementById("galleryModal");
+const modalImg = document.getElementById("modalImage");
+
+/* ===== Open ===== */
+window.openModal = function(index){
+    currentIndex = index;
+    modal.classList.add("active");
+    modalImg.src = imageList[currentIndex].src;
+    document.body.style.overflow = "hidden";
+}
+
+/* ===== Close ===== */
+window.closeModal = function(){
+    modal.classList.remove("active");
+    document.body.style.overflow = "auto";
+}
+
+/* ===== Change Image ===== */
+window.changeImage = function(direction){
+    if(imageList.length === 0) return;
+
+    currentIndex = (currentIndex + direction + imageList.length) % imageList.length;
+    modalImg.src = imageList[currentIndex].src;
+}
+
+/* ===== Keyboard ===== */
+document.addEventListener("keydown", function(e){
+    if(!modal.classList.contains("active")) return;
+
+    if(e.key === "ArrowRight") changeImage(1);
+    if(e.key === "ArrowLeft") changeImage(-1);
+    if(e.key === "Escape") closeModal();
+});
+
+/* ===== Click Outside ===== */
+modal.addEventListener("click", function(e){
+    if(e.target === modal) closeModal();
+});
+
+});
+</script>
+
+{% endblock %}

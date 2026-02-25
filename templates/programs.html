@@ -1,0 +1,46 @@
+<!--!DOCTYPE html>
+<html>
+<head>
+    <title>Programs</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <h1>Education & Outreach Programs</h1>
+    <p>Details of workshops, awareness programs, zoo education activities.</p>
+
+    <div class="programs-container">
+
+        {% if programs %}
+            {% for program in programs %}
+            <div class="card">
+                <div class="card-content">
+
+                    <h3>{{ program.name }}</h3>
+
+                    <p><strong>📍 Location:</strong> {{ program.location }}</p>
+
+                    {% if program.event_date %}
+                    <p>
+                        <strong>📅 Date:</strong>
+                        {{ program.event_date.strftime('%d %B %Y') }}
+                    </p>
+                    {% endif %}
+
+                    <p><strong>🎯 Audience:</strong> {{ program.target_audience }}</p>
+
+                    <p><strong>⏳ Duration:</strong> {{ program.duration }}</p>
+
+                    <p>{{ program.description }}</p>
+
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>No programs available at the moment.</p>
+        {% endif %}
+
+    </div>
+
+</body>
+</html-->

@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+{% block title %}Animals at BBP{% endblock %}
+
+{% block content %}
+
+<section style="max-width:1200px;margin:60px auto;padding:0 20px;">
+
+    <!-- BACK BUTTON -->
+    <div style="
+    max-width:1200px;
+    margin:30px auto 0;
+    padding:0 20px;
+">
+
+    <a href="{{ url_for('home') }}"
+       style="
+            display:inline-flex;
+            align-items:center;
+            gap:6px;
+            padding:6px 16px;
+            border-radius:30px;
+            background:transparent;
+            border:none;
+            color:#2E7D32;
+            font-size:13px;
+            font-weight:500;
+            text-decoration:none;
+            transition:all 0.2s ease;
+       "
+       onmouseover="this.style.background='#EAF3EA'"
+       onmouseout="this.style.background='#F6F8F6'">
+
+        ← Back to Home
+    </a>
+
+</div>
+
+
+    <!-- PAGE HEADER -->
+    <div class="page-header" style="margin-bottom:40px;">
+        <h1 style="color:#1B5E20;">Animals at BBP</h1>
+        <p style="color:#555;">
+            Explore the diverse wildlife species housed at
+            Bannerughatta Biological Park.
+        </p>
+    </div>
+
+    <!-- FILTER BAR -->
+    <div class="filter-bar" style="margin-bottom:40px;">
+        <form method="GET" class="filter-form">
+
+            <div class="search-wrapper">
+                <span class="search-icon">🔍</span>
+                <input type="text"
+                       id="searchInput"
+                       name="search"
+                       placeholder="Search animal..."
+                       value="{{ request.args.get('search', '') }}">
+            </div>
+
+            <select name="status">
+                <option value="all"
+                    {% if request.args.get('status', 'all') == 'all' %}selected{% endif %}>
+                    All
+                </option>
+
+                {% for s in statuses %}
+                    <option value="{{ s }}"
+                        {% if request.args.get('status') == s %}selected{% endif %}>
+                        {{ s }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <button type="submit" class="btn-apply">Apply</button>
+            <a href="{{ url_for('animals') }}" class="btn-reset">Reset</a>
+
+        </form>
+    </div>
+
+    <!-- ANIMAL GRID -->
+    <div class="grid">
+
+    {% if animals %}
+        {% for animal in animals %}
+        <div class="card">
+
+            {% if animal.image %}
+            <img src="{{ url_for('static', filename='images/animals/' ~ animal.image) }}"
+                 alt="{{ animal.common_name }}"
+                 onclick="openAnimalModal('{{ url_for('static', filename='images/animals/' ~ animal.image) }}')"
+                 style="cursor:pointer;">
+            {% else %}
+            <img src="{{ url_for('static', filename='images/default-animal.png') }}"
+                 alt="No image available">
+            {% endif %}
+
+            <div class="card-content">
+
+                <h3>{{ animal.common_name }}</h3>
+
+                <p class="scientific-name">
+                    <em>{{ animal.scientific_name }}</em>
+                </p>
+
+                <div class="meta-info">
+                    <div class="meta-item">
+                        🌿 <strong>Habitat:</strong> {{ animal.habitat }}
+                    </div>
+
+                    <div class="meta-item">
+                        📍 <strong>IUCN Status:</strong> {{ animal.conservation_status }}
+                    </div>
+                </div>
+
+                <p class="description">
+                    {{ animal.description }}
+                </p>
+
+            </div>
+
+        </div>
+        {% endfor %}
+
+    {% else %}
+
+        <div class="no-results fade-in">
+            <h3>No animals found 🐾</h3>
+            <a href="{{ url_for('animals') }}" class="clear-btn">
+                Clear Filters
+            </a>
+        </div>
+
+    {% endif %}
+
+    </div>
+
+</section>
+
+
+<!-- IMAGE MODAL -->
+<div id="animalModal"
+     style="display:none;
+            position:fixed;
+            top:0;
+            left:0;
+            width:100%;
+            height:100%;
+            background:rgba(0,0,0,0.85);
+            justify-content:center;
+            align-items:center;
+            z-index:10000;">
+
+    <span onclick="closeAnimalModal()"
+          style="position:absolute;
+                 top:20px;
+                 right:40px;
+                 font-size:40px;
+                 color:white;
+                 cursor:pointer;">&times;</span>
+
+    <img id="modalImage"
+         style="max-width:90%;
+                max-height:90%;
+                border-radius:12px;
+                box-shadow:0 20px 50px rgba(0,0,0,0.5);">
+</div>
+<div style="
+    max-width:1200px;
+    margin:30px auto 0;
+    padding:0 20px;
+">
+
+    <a href="{{ url_for('home') }}"
+       style="
+            display:inline-flex;
+            align-items:center;
+            gap:6px;
+            padding:6px 16px;
+            border-radius:30px;
+            background:transparent;
+            border:none;
+            color:#2E7D32;
+            font-size:13px;
+            font-weight:500;
+            text-decoration:none;
+            transition:all 0.2s ease;
+       "
+       onmouseover="this.style.background='#EAF3EA'"
+       onmouseout="this.style.background='#F6F8F6'">
+
+        ← Back to Home
+    </a>
+
+</div>
+
+<!-- MODAL SCRIPT -->
+<script>
+function openAnimalModal(imageUrl) {
+    const modal = document.getElementById("animalModal");
+    const modalImage = document.getElementById("modalImage");
+    modal.style.display = "flex";
+    modalImage.src = imageUrl;
+}
+
+function closeAnimalModal() {
+    document.getElementById("animalModal").style.display = "none";
+}
+</script>
+
+{% endblock %}

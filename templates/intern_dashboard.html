@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+{% block title %}Intern Dashboard{% endblock %}
+
+{% block content %}
+<div style="max-width:900px; margin:40px auto;">
+
+    <h2>Welcome, {{ user.name }}</h2>
+    <hr>
+
+    {% set profile = user.intern_profile %}
+    {% set read_only = profile and profile.is_completed %}
+
+    <!-- ================= READ ONLY BANNER ================= -->
+    <div style="
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:25px;
+">
+
+    <h2 style="color:#1B5E20;">Intern Dashboard</h2>
+
+    <!-- Account Logout -->
+    <form method="POST" action="{{ url_for('intern_logout') }}"
+      onsubmit="return confirm('Are you sure you want to logout?');"
+      style="display:inline;">
+
+    <button type="submit">Logout</button>
+
+</form>
+
+
+</form>
+
+
+</div>
+
+    {% if read_only %}
+        <div style="
+            padding:20px;
+            background:#f5f5f5;
+            border-left:5px solid #2E7D32;
+            border-radius:8px;
+            margin-bottom:25px;">
+            <strong style="color:#2E7D32;">Internship Completed</strong><br>
+            Dashboard is now in <strong>Read-Only Mode</strong>.
+            {% if profile.completed_at %}
+                <div style="margin-top:5px; color:#666;">
+                    Completed on {{ profile.completed_at.strftime('%d %b %Y') }}
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <!-- ================= SUBJECTS ================= -->
+
+    {% if profile and profile.internship_subjects %}
+        <p><strong>Your Internship Subjects:</strong></p>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px;">
+            {% for subject in profile.internship_subjects.split(",") %}
+                <span style="
+                    background:#E3F2FD;
+                    color:#1565C0;
+                    padding:6px 12px;
+                    border-radius:20px;
+                    font-size:13px;">
+                    {{ subject.strip() }}
+                </span>
+            {% endfor %}
+        </div>
+        <hr style="margin:30px 0;">
+    {% endif %}
+
+    <!-- ================= TODAY SECTION ================= -->
+<h3>Today</h3>
+
+{% if allow_today_login %}
+
+    {% if not today_log %}
+        <a href="{{ url_for('intern_today') }}"
+           style="text-decoration:none; color:white; background:#2E7D32; padding:10px 20px; border-radius:5px;">
+            Login for Today
+        </a>
+{% elif not today_log.submitted %}
+        <a href="{{ url_for('intern_today') }}"
+           style="text-decoration:none; color:white; background:#2E7D32; padding:10px 20px; border-radius:5px;">
+            Continue Today
+        </a>
+    {% else %}
+        <a href="{{ url_for('intern_day_view', log_id=today_log.id) }}"
+           style="text-decoration:none; color:white; background:#1565C0; padding:10px 20px; border-radius:5px;">
+            View Today's Log
+        </a>
+    {% endif %}
+
+{% else %}
+
+    <p style="color:#888; margin-top:10px;">
+        Daily logging not available.
+    </p>
+
+{% endif %}
+
+
+    <hr style="margin:40px 0;">
+
+    <!-- ================= PREVIOUS DAYS ================= -->
+
+    <h3>Previous Days</h3>
+
+    {% if previous_logs %}
+        <ul style="list-style:none; padding:0;">
+            {% for log in previous_logs %}
+                <li style="padding:15px; background:#f5f5f5; margin-bottom:10px; border-radius:6px;">
+                    <strong>Day {{ loop.index }}</strong>
+                    <span style="color:#666;">
+                        {{ log.date.strftime('%A') }},
+                        {{ log.date.strftime('%d-%m-%Y') }}
+                    </span>
+
+                    <a href="{{ url_for('intern_day_view', log_id=log.id) }}"
+                       style="float:right; text-decoration:none; color:#2E7D32;">
+                        Open
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No previous records.</p>
+    {% endif %}
+
+    <hr style="margin:40px 0;">
+
+    <!-- ================= COMPLETION PROCESS ================= -->
+
+    <h3>Internship Completion Process</h3>
+
+    {% if profile and profile.report_upload_enabled %}
+
+        {% if not profile.report_file %}
+
+            {% if not read_only %}
+                <form method="POST"
+                      enctype="multipart/form-data"
+                      action="{{ url_for('upload_intern_report') }}">
+
+                    <input type="file" name="report" accept=".pdf" required>
+                    <br><br>
+
+                    <button type="submit"
+                            style="padding:8px 15px;
+                                   background:#1565C0;
+                                   color:white;
+                                   border:none;
+                                   border-radius:5px;">
+                        Upload Final Report
+                    </button>
+                </form>
+            {% else %}
+                <p style="color:#777;">Report submission closed.</p>
+            {% endif %}
+
+        {% else %}
+
+            <p style="color:green; font-weight:500;">
+                Report Uploaded Successfully ✅
+            </p>
+
+            {% if not profile.survey_completed %}
+
+                {% if not read_only %}
+                    <a href="{{ url_for('intern_post_survey') }}"
+                       style="padding:8px 15px;
+                              background:#6A1B9A;
+                              color:white;
+                              border-radius:5px;
+                              text-decoration:none;">
+                        Fill Internship Survey
+                    </a>
+                {% else %}
+                    <p style="color:#777;">Survey submission closed.</p>
+                {% endif %}
+
+            {% else %}
+
+                <p style="color:#2E7D32; font-weight:500;">
+                    Survey Submitted ✅
+                </p>
+
+                {% if not profile.certificate_requested %}
+
+                    {% if not read_only %}
+                        <form method="POST"
+                              action="{{ url_for('request_certificate') }}"
+                              style="margin-top:15px;">
+                            <button type="submit"
+                                    style="padding:8px 15px;
+                                           background:#F57C00;
+                                           color:white;
+                                           border:none;
+                                           border-radius:5px;">
+                                Request Internship Certificate
+                            </button>
+                        </form>
+                    {% else %}
+                        <p style="color:#777;">Certificate request closed.</p>
+                    {% endif %}
+
+                {% else %}
+                    <p style="color:#1565C0; margin-top:10px;">
+                        Certificate Request Sent. Waiting for Admin Approval.
+                    </p>
+                {% endif %}
+
+            {% endif %}
+
+        {% endif %}
+
+    {% else %}
+
+        <button disabled
+                style="padding:8px 15px;
+                       background:#ccc;
+                       border:none;
+                       border-radius:5px;">
+            Upload Disabled (Admin Approval Required)
+        </button>
+
+    {% endif %}
+
+    <!-- ================= CERTIFICATE DOWNLOAD (VISIBLE EVEN AFTER COMPLETION) ================= -->
+
+    {% if profile and profile.certificate_file %}
+        <hr style="margin:40px 0;">
+        <h3>Internship Certificate</h3>
+
+        <a href="{{ url_for('intern_download_certificate') }}"
+           target="_blank"
+           style="padding:10px 18px;
+                  background:#2E7D32;
+                  color:white;
+                  border-radius:6px;
+                  text-decoration:none;">
+            Download Internship Certificate
+        </a>
+    {% endif %}
+
+</div>
+{% endblock %}

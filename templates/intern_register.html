@@ -1,0 +1,354 @@
+{% extends "base.html" %}
+{% block title %}Intern Registration{% endblock %}
+
+{% block content %}
+<section style="max-width:1200px;margin:60px auto;padding:0 20px;">
+
+    <!-- BACK BUTTON -->
+    <div style="
+    max-width:1200px;
+    margin:30px auto 0;
+    padding:0 0.5px;
+">
+
+    <a href="{{ url_for('enroll_programs') }}"
+       style="
+            display:inline-flex;
+            align-items:center;
+            gap:6px;
+            padding:6px 16px;
+            border-radius:30px;
+            background:transparent;
+            border:none;
+            color:#2E7D32;
+            font-size:13px;
+            font-weight:500;
+            text-decoration:none;
+            transition:all 0.5s ease;
+       "
+       onmouseover="this.style.background='#EAF3EA'"
+       onmouseout="this.style.background='#F6F8F6'">
+
+        ← Back
+    </a>
+
+</div>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+
+<div style="max-width:800px; margin:40px auto;">
+
+    <h2>Intern Registration</h2>
+    <hr>
+
+<form method="POST">
+               <!-- BASIC INFO -->
+        <label>Full Name</label>
+        <input type="text" name="name" required
+               style="width:100%; padding:8px; margin-bottom:15px;">
+
+        <label>Email</label>
+        <input type="email" name="email" required
+               style="width:100%; padding:8px; margin-bottom:15px;">
+
+        <label>Password</label>
+        <input type="password" name="password" required
+               style="width:100%; padding:8px; margin-bottom:20px;">
+
+        <!-- PHOTO SECTION (REPLACED EXACTLY AS REQUESTED) -->
+
+        <label>Upload Recent Photograph</label>
+
+<div id="dropZone" style="
+    border:2px dashed #1B5E20;
+    padding:20px;
+    text-align:center;
+    border-radius:10px;
+    margin-bottom:15px;
+    cursor:pointer;
+">
+    Click or Drag & Drop Photo Here
+</div>
+
+<input type="file" id="photoInput" accept="image/*" style="display:none;">
+
+<div style="max-width:300px; margin-top:15px;">
+    <img id="previewImage" style="width:100%; display:none;">
+</div>
+
+<!-- Crop Controls -->
+<div id="cropControls" style="display:none; margin-top:10px;">
+    <button type="button" id="rotateBtn">⟲ Rotate</button>
+
+    <input type="range" id="zoomSlider" min="0.5" max="3" step="0.1" value="1">
+
+    <button type="button" id="cropBtn"
+            style="background:#1B5E20;color:white;padding:6px 12px;border:none;border-radius:5px;">
+        Crop & Save
+    </button>
+</div>
+
+<input type="hidden" name="cropped_image" id="croppedImageInput">
+        <hr>
+
+        <!-- ACADEMIC DETAILS -->
+        <h3>Academic Details</h3>
+
+        <label>Course</label>
+        <input type="text" name="course" required
+               style="width:100%; padding:8px; margin-bottom:15px;">
+
+        <label>Year</label>
+        <input type="text" name="year" required
+               placeholder="e.g. 2nd Year"
+               style="width:100%; padding:8px; margin-bottom:15px;">
+
+        <label>Semester</label>
+        <input type="text" name="semester" required
+               placeholder="e.g. 4th Semester"
+               style="width:100%; padding:8px; margin-bottom:15px;">
+
+        <label>College Name</label>
+        <input type="text" name="college" required
+               style="width:100%; padding:8px; margin-bottom:15px;">
+
+        <label>Phone Number</label>
+
+        <div style="display:flex; margin-bottom:20px;">
+            <span style="
+                padding:8px 12px;
+                background:#f3f3f3;
+                border:1px solid #ccc;
+                border-right:none;
+                border-radius:6px 0 0 6px;
+                display:flex;
+                align-items:center;
+                font-weight:500;
+            ">
+                +91
+            </span>
+
+            <input type="tel"
+                   name="phone"
+                   pattern="[0-9]{10}"
+                   maxlength="12"
+                   required
+                   placeholder="Enter 10-digit number"
+                   style="
+                        width:100%;
+                        padding:8px;
+                        border:1px solid #ccc;
+                        border-radius:0 6px 6px 0;
+                        outline:none;
+                   ">
+        </div>
+
+        <hr>
+
+        <!-- INTERNSHIP DETAILS -->
+        <h3>Internship Details</h3>
+
+        <label>Internship Start Date</label>
+        <input type="date" name="start_date" required
+               style="width:100%; padding:8px; margin-bottom:15px;">
+
+        <label>Internship End Date</label>
+        <input type="date" name="end_date" required
+               style="width:100%; padding:8px; margin-bottom:15px;">
+
+        <!-- INTERNSHIP SUBJECT DROPDOWN -->
+        <div style="margin-bottom:20px; position:relative;">
+
+            <label style="font-weight:500;">Internship Subject</label>
+
+            <div onclick="toggleSubjectDropdown()"
+                 style="border:1px solid #ddd;
+                        border-radius:8px;
+                        padding:10px;
+                        cursor:pointer;
+                        background:white;
+                        margin-top:8px;">
+                <span id="subjectPlaceholder">Select Internship Subject(s)</span>
+            </div>
+
+            <div id="subjectDropdown"
+                 style="display:none;
+                        position:absolute;
+                        top:75px;
+                        left:0;
+                        width:100%;
+                        background:white;
+                        border:1px solid #ddd;
+                        border-radius:8px;
+                        padding:10px;
+                        box-shadow:0 8px 20px rgba(0,0,0,0.08);
+                        z-index:1000;">
+
+                <p><strong>Select Your Internship Subject</strong></p>
+
+                <label><input type="checkbox" name="internship_subjects" value="Animal Behaviour"> Animal Behaviour</label><br>
+                <label><input type="checkbox" name="internship_subjects" value="Flora"> Flora</label><br>
+                <label><input type="checkbox" name="internship_subjects" value="Butterfly Management"> Butterfly Management</label><br>
+                <label><input type="checkbox" name="internship_subjects" value="Marketing"> Marketing</label><br>
+                <label><input type="checkbox" name="internship_subjects" value="Designing"> Designing</label>
+
+            </div>
+        </div>
+
+        <label>Internship Objective</label>
+        <textarea name="objective" required
+                  placeholder="Write 4-5 sentences about your internship objective..."
+                  style="width:100%; height:120px; padding:8px; margin-bottom:20px;"></textarea>
+
+
+                
+        <button type="submit" id="submitBtn"
+              style="padding:10px 20px; background:#2E7D32; color:white; border:none; border-radius:6px;">
+    Submit Application
+</button>
+
+    </form>
+
+</div>
+
+<script>
+function toggleSubjectDropdown() {
+    const dropdown = document.getElementById("subjectDropdown");
+    dropdown.style.display =
+        dropdown.style.display === "block" ? "none" : "block";
+}
+
+document.addEventListener("click", function(e) {
+    if (!e.target.closest("#subjectDropdown") &&
+        !e.target.closest("[onclick='toggleSubjectDropdown()']")) {
+        document.getElementById("subjectDropdown").style.display = "none";
+    }
+});
+</script>
+
+<!-- EXACT SCRIPT PLACED AT BOTTOM AS REQUESTED -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+
+    let cropper;
+    const dropZone = document.getElementById("dropZone");
+    const input = document.getElementById("photoInput");
+    const preview = document.getElementById("previewImage");
+    const cropControls = document.getElementById("cropControls");
+    const rotateBtn = document.getElementById("rotateBtn");
+    const zoomSlider = document.getElementById("zoomSlider");
+    const cropBtn = document.getElementById("cropBtn");
+    const croppedInput = document.getElementById("croppedImageInput");
+
+    dropZone.onclick = () => input.click();
+
+    dropZone.addEventListener("dragover", e => {
+        e.preventDefault();
+        dropZone.style.background = "#f1f1f1";
+    });
+
+    dropZone.addEventListener("dragleave", () => {
+        dropZone.style.background = "white";
+    });
+
+    dropZone.addEventListener("drop", e => {
+        e.preventDefault();
+        dropZone.style.background = "white";
+        if (e.dataTransfer.files.length > 0) {
+            input.files = e.dataTransfer.files;
+            handleFile(e.dataTransfer.files[0]);
+        }
+    });
+
+    input.addEventListener("change", function(e) {
+        if (e.target.files.length > 0) {
+            handleFile(e.target.files[0]);
+        }
+    });
+
+    function handleFile(file) {
+
+        if (!file) return;
+
+        if (file.size > 2 * 1024 * 1024) {
+            alert("Max file size is 2MB.");
+            input.value = "";
+            return;
+        }
+
+        const reader = new FileReader();
+
+        reader.onload = function(event) {
+
+            preview.src = event.target.result;
+            preview.style.display = "block";
+            cropControls.style.display = "block";
+
+            if (cropper) {
+                cropper.destroy();
+            }
+
+            cropper = new Cropper(preview, {
+                aspectRatio: 3 / 4,   // 3:4 passport ratio
+                viewMode: 1,
+                autoCropArea: 1,
+            });
+        };
+
+        reader.readAsDataURL(file);
+    }
+
+    rotateBtn.addEventListener("click", function() {
+        if (cropper) cropper.rotate(90);
+    });
+
+    zoomSlider.addEventListener("input", function() {
+        if (cropper) cropper.zoomTo(this.value);
+    });
+
+    cropBtn.addEventListener("click", function() {
+
+        if (!cropper) return;
+
+        const canvas = cropper.getCroppedCanvas({
+            width: 600,
+            height: 800
+        });
+
+        const croppedData = canvas.toDataURL("image/jpeg", 0.85);
+
+        croppedInput.value = croppedData;
+        document.getElementById("submitBtn").disabled = false;
+
+        // Replace preview with cropped version
+        preview.src = croppedData;
+
+        // Destroy cropper after saving
+        cropper.destroy();
+        cropper = null;
+
+        alert("Photo cropped and saved successfully.");
+    });
+
+});
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+
+    const form = document.querySelector("form");
+
+    form.addEventListener("submit", function(e) {
+
+        const confirmSubmit = confirm(
+            "Are you sure you want to submit your internship application?\n\nOnce submitted, you cannot make changes."
+        );
+
+        if (!confirmSubmit) {
+            e.preventDefault();
+        }
+
+    });
+
+});
+</script>
+{% endblock %}

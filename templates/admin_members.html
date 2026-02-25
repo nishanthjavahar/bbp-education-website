@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Members{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+
+    <h2 class="dashboard-title">Members Management</h2>
+
+    <div class="dashboard-grid">
+
+        <a href="{{ url_for('view_volunteers') }}" class="dash-card">
+            <h3>🧑‍🤝‍🧑 Volunteers</h3>
+            <p>View & manage approved volunteers</p>
+        </a>
+
+        <a href="{{ url_for('view_interns') }}" class="dash-card">
+            <h3>🎓 Interns</h3>
+            <p>View & manage approved interns</p>
+        </a>
+
+    </div>
+
+</div>
+{% endblock %}

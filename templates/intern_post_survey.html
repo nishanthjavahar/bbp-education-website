@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Internship Survey{% endblock %}
+
+{% block content %}
+<div style="max-width:600px; margin:40px auto;">
+
+    <h2>Internship Post Survey</h2>
+    <hr>
+
+    {% if profile.survey_completed %}
+
+        <p><strong>Rating:</strong> {{ profile.survey_rating }} / 5</p>
+        <p><strong>Feedback:</strong></p>
+        <div style="background:#f5f5f5; padding:15px; border-radius:6px;">
+            {{ profile.survey_feedback }}
+        </div>
+
+    {% else %}
+
+        <form method="POST">
+
+            <label><strong>Rate Your Internship (1–5)</strong></label>
+            <br><br>
+
+            <select name="rating" required style="padding:8px; width:100%;">
+                <option value="">Select Rating</option>
+                <option value="1">1 - Very Poor</option>
+                <option value="2">2 - Poor</option>
+                <option value="3">3 - Average</option>
+                <option value="4">4 - Good</option>
+                <option value="5">5 - Excellent</option>
+            </select>
+
+            <br><br>
+
+            <label><strong>Feedback</strong></label>
+            <br><br>
+
+            <textarea name="feedback"
+                      rows="5"
+                      required
+                      style="width:100%; padding:10px;"></textarea>
+
+            <br><br>
+
+            <button type="submit"
+                    style="padding:10px 20px;
+                           background:#6A1B9A;
+                           color:white;
+                           border:none;
+                           border-radius:5px;">
+                Submit Survey
+            </button>
+
+        </form>
+
+    {% endif %}
+
+</div>
+{% endblock %}

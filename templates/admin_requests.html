@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% block title %}Registration Requests{% endblock %}
+
+{% block content %}
+<div style="
+    max-width:1100px;
+    margin:20px auto 0 auto;
+    padding:0 5px;
+">
+    <a href="{{ url_for('admin_dashboard') }}"
+       style="
+            display:inline-flex;
+            align-items:center;
+            gap:6px;
+            font-size:13px;
+            font-weight:500;
+            padding:6px 14px;
+            border-radius:20px;
+            background:#f1f3f4;
+            color:#444;
+            text-decoration:none;
+            transition:all 0.2s ease;
+       "
+       onmouseover="this.style.background='#e0e0e0'"
+       onmouseout="this.style.background='#f1f3f4'">
+
+        <span style="font-size:12px;">◀</span>
+        Dashboard
+    </a>
+</div>
+
+
+<div style="
+    max-width: 1000px;
+    margin: 40px auto;
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+">
+
+    <h2 style="margin-bottom: 25px;">Pending Registration Requests</h2>
+
+    <!-- ================= VOLUNTEERS ================= -->
+
+    <h3 style="margin-top:20px;">Volunteer Requests</h3>
+
+    {% if volunteer_requests %}
+    <table style="width:100%; border-collapse: collapse; margin-top:10px;">
+        <tr style="background:#f8f9fa;">
+            <th style="padding:10px; border:1px solid #e0e0e0;">Name</th>
+            <th style="padding:10px; border:1px solid #e0e0e0;">Email</th>
+            <th style="padding:10px; border:1px solid #e0e0e0;">Action</th>
+        </tr>
+
+        {% for u in volunteer_requests %}
+        <tr>
+            <td style="padding:10px; border:1px solid #e0e0e0;">
+                {{ u.name }}
+            </td>
+
+            <td style="padding:10px; border:1px solid #e0e0e0;">
+                {{ u.email }}
+            </td>
+
+            <td style="padding:10px; border:1px solid #e0e0e0; text-align:center;">
+
+                <a href="{{ url_for('approve_user', user_id=u.id) }}"
+                   onclick="return confirm('Are you sure you want to approve this volunteer?')"
+                   style="
+                       background-color:#28a745;
+                       color:white;
+                       padding:6px 12px;
+                       border-radius:5px;
+                       text-decoration:none;
+                       font-size:14px;
+                       margin-right:8px;
+                   ">
+                   Approve
+                </a>
+
+                <a href="{{ url_for('reject_user', user_id=u.id) }}"
+                   onclick="return confirm('Are you sure you want to reject this volunteer?')"
+                   style="
+                       background-color:#dc3545;
+                       color:white;
+                       padding:6px 12px;
+                       border-radius:5px;
+                       text-decoration:none;
+                       font-size:14px;
+                   ">
+                   Reject
+                </a>
+
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+        <p style="color:#777;">No pending volunteer requests.</p>
+    {% endif %}
+
+    <hr style="margin:40px 0;">
+
+    <!-- ================= INTERNS ================= -->
+
+    <h3>Intern Requests</h3>
+
+{% for u in intern_requests %}
+<div style="padding:15px; border:1px solid #ddd; margin-bottom:10px; border-radius:6px; background:#fafafa;">
+
+    <strong>{{ u.name }}</strong><br>
+    {{ u.email }}
+
+    <div style="margin-top:10px;">
+
+        <a href="{{ url_for('admin_view_intern_application', intern_id=u.id) }}"
+           style="padding:6px 12px; background:#1976D2; color:white; border-radius:4px; text-decoration:none;">
+            View
+        </a>
+
+        <a href="{{ url_for('approve_user', user_id=u.id) }}"
+           style="padding:6px 12px; background:#2E7D32; color:white; border-radius:4px; text-decoration:none; margin-left:8px;">
+            Approve
+        </a>
+
+        <a href="{{ url_for('reject_user', user_id=u.id) }}"
+           style="padding:6px 12px; background:#C62828; color:white; border-radius:4px; text-decoration:none; margin-left:8px;">
+            Reject
+        </a>
+
+    </div>
+</div>
+{% else %}
+<p>No intern requests.</p>
+{% endfor %}
+
+
+</div>
+
+{% endblock %}

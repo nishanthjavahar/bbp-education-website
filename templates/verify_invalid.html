@@ -1,0 +1,43 @@
+
+{% block title %}Invalid Certificate{% endblock %}
+
+{% block content %}
+
+<section style="
+    min-height: 80vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background: linear-gradient(135deg,#ffebee,#fce4ec);
+    padding:40px 20px;
+">
+
+    <div style="
+        background:white;
+        width:450px;
+        max-width:95%;
+        border-radius:14px;
+        padding:35px 30px;
+        text-align:center;
+        box-shadow:0 12px 35px rgba(0,0,0,0.08);
+    ">
+
+        <div style="
+            font-size:60px;
+            color:#C62828;
+            margin-bottom:15px;
+        ">
+            ✖
+        </div>
+
+        <h2 style="color:#C62828;">Invalid Certificate</h2>
+
+        <p style="color:#666; margin-top:10px;">
+            This certificate ID does not exist or has been revoked.
+        </p>
+
+    </div>
+
+</section>
+
+{% endblock %}

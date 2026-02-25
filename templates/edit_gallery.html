@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Edit Gallery Image{% endblock %}
+
+{% block content %}
+
+<section style="max-width:600px;margin:60px auto;padding:0 20px;">
+
+<h2 style="color:#1B5E20;margin-bottom:30px;">Edit Image</h2>
+
+<div style="
+background:white;
+padding:30px;
+border-radius:16px;
+box-shadow:0 6px 18px rgba(0,0,0,0.08);
+">
+
+<!-- CURRENT IMAGE -->
+<img src="{{ url_for('static', filename='uploads/gallery/' ~ image.image) }}"
+     style="width:100%;border-radius:12px;margin-bottom:20px;">
+
+<form method="POST" enctype="multipart/form-data">
+
+<label style="font-weight:600;">Replace Image</label><br><br>
+
+<input type="file" name="image" accept="image/*"><br><br>
+
+<button type="submit"
+style="
+background:#1B5E20;
+color:white;
+padding:8px 20px;
+border:none;
+border-radius:8px;
+cursor:pointer;">
+Update Image
+</button>
+
+</form>
+
+</div>
+
+</section>
+
+{% endblock %}

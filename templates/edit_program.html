@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+{% block title %}Edit Program{% endblock %}
+{% block content %}
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+<section style="max-width:900px;margin:40px auto;padding:0 20px;">
+
+<h2 style="color:#1B5E20;margin-bottom:30px;">Edit Program</h2>
+
+<div style="background:white;padding:30px;border-radius:18px;
+box-shadow:0 6px 18px rgba(0,0,0,0.08);">
+
+<form method="POST" enctype="multipart/form-data">
+
+<input type="text" name="name"
+value="{{ program.name }}" required
+style="width:100%;padding:10px;margin-bottom:15px;">
+
+<!-- CURRENT IMAGE -->
+{% if program.image %}
+<div style="margin-bottom:20px;">
+<strong>Current Image:</strong><br>
+<img src="{{ url_for('static', filename='uploads/programs/' ~ program.image) }}"
+style="max-width:350px;border-radius:10px;">
+</div>
+{% endif %}
+
+<!-- NEW IMAGE -->
+<label style="font-weight:600;">Replace Image (Optional)</label><br><br>
+
+<input type="file" name="image" id="imageInput" accept="image/*">
+
+<div style="margin-top:15px; max-width:600px;">
+<img id="imagePreview" style="width:100%; display:none;">
+</div>
+
+<button type="button"
+id="cropBtn"
+style="margin-top:10px;padding:6px 15px;
+background:#2E7D32;color:white;
+border:none;border-radius:6px;display:none;">
+Crop Image
+</button>
+
+<input type="hidden" name="cropped_image" id="croppedImage">
+
+<br><br>
+
+<textarea name="description" required
+style="width:100%;padding:10px;margin-bottom:20px;">{{ program.description }}</textarea>
+<!-- ================= TARGET AUDIENCE ================= -->
+<label style="font-weight:600;">Select Target Audience:</label>
+
+{% set selected = program.target_audience.split(',') if program.target_audience else [] %}
+
+<div style="display:flex; gap:15px; flex-wrap:wrap; margin:15px 0;">
+
+    <label>
+        <input type="checkbox" name="target_audience"
+               value="School Students"
+               {% if "School Students" in selected %}checked{% endif %}>
+        School Students
+    </label>
+
+    <label>
+        <input type="checkbox" name="target_audience"
+               value="College Students"
+               {% if "College Students" in selected %}checked{% endif %}>
+        College Students
+    </label>
+
+    <label>
+        <input type="checkbox" name="target_audience"
+               value="Researchers"
+               {% if "Researchers" in selected %}checked{% endif %}>
+        Researchers
+    </label>
+
+    <label>
+        <input type="checkbox" name="target_audience"
+               value="Senior Citizens"
+               {% if "Senior Citizens" in selected %}checked{% endif %}>
+        Senior Citizens
+    </label>
+
+    <label>
+        <input type="checkbox" id="otherCheck">
+        Other
+    </label>
+
+</div>
+
+<input type="text"
+       name="other_audience"
+       id="otherAudienceInput"
+       placeholder="Enter custom audience"
+       style="display:none; margin-bottom:20px; padding:8px; border:1px solid #ccc; border-radius:6px;">
+
+<input type="text" name="location"
+value="{{ program.location }}"
+style="width:100%;padding:10px;margin-bottom:15px;">
+
+<input type="date" name="event_date"
+value="{{ program.event_date.strftime('%Y-%m-%d') }}"
+style="padding:10px;">
+
+<br><br>
+
+<label>Start Time</label>
+<input type="time" name="start_time"
+value="{{ program.start_time.strftime('%H:%M') }}">
+
+<label>End Time</label>
+<input type="time" name="end_time"
+value="{{ program.end_time.strftime('%H:%M') }}">
+
+<br><br>
+
+<button type="submit"
+style="background:#1B5E20;color:white;padding:10px 25px;
+border:none;border-radius:8px;">
+Update Program
+</button>
+
+</form>
+</div>
+</section>
+
+<script>
+let cropper;
+
+const input = document.getElementById("imageInput");
+const preview = document.getElementById("imagePreview");
+const cropBtn = document.getElementById("cropBtn");
+const croppedInput = document.getElementById("croppedImage");
+
+input.addEventListener("change", function(e) {
+const file = e.target.files[0];
+if (!file) return;
+
+const reader = new FileReader();
+
+reader.onload = function(event) {
+preview.src = event.target.result;
+preview.style.display = "block";
+
+if (cropper) cropper.destroy();
+
+cropper = new Cropper(preview, {
+    viewMode: 1,
+    autoCropArea: 1,
+    responsive: true,
+    background: false
+});
+
+
+cropBtn.style.display = "inline-block";
+};
+
+reader.readAsDataURL(file);
+});
+
+cropBtn.addEventListener("click", function() {
+if (!cropper) return;
+
+const canvas = cropper.getCroppedCanvas({
+width: 1280,
+height: 720
+});
+
+croppedInput.value = canvas.toDataURL("image/jpeg");
+alert("Image cropped successfully!");
+});
+</script>
+<script>
+const otherCheck = document.getElementById("otherCheck");
+const otherInput = document.getElementById("otherAudienceInput");
+
+otherCheck.addEventListener("change", function() {
+    if (this.checked) {
+        otherInput.style.display = "block";
+    } else {
+        otherInput.style.display = "none";
+        otherInput.value = "";
+    }
+});
+</script>
+
+
+{% endblock %}

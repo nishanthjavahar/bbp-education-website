@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block title %}Intern Application{% endblock %}
+
+{% block content %}
+<div style="max-width:1000px; margin:50px auto;">
+
+    <!-- CARD CONTAINER -->
+    <div style="background:white;
+                padding:40px;
+                border-radius:12px;
+                box-shadow:0 8px 25px rgba(0,0,0,0.08);">
+
+        <!-- HEADER WITH ACTION BUTTONS -->
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+
+            <h2 style="margin:0; font-size:28px;">
+                Intern Application - {{ intern.name }}
+            </h2>
+
+            <div style="display:flex; gap:12px; margin-top:10px;">
+
+                <!-- PRINT -->
+                <button onclick="window.print()"
+                        style="padding:10px 18px;
+                               background:#1976D2;
+                               color:white;
+                               border:none;
+                               border-radius:6px;">
+                    Print
+                </button>
+
+                <!-- DOWNLOAD PDF -->
+                <a href="{{ url_for('admin_download_application', intern_id=intern.id) }}"
+                   style="padding:10px 18px;
+                          background:#2E7D32;
+                          color:white;
+                          border-radius:6px;
+                          text-decoration:none;">
+                    Download PDF
+                </a>
+
+            </div>
+        </div>
+
+        <hr style="margin:30px 0; border:none; height:1px; background:#eee;">
+
+        <!-- BASIC DETAILS GRID -->
+        <div style="display:grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap:20px;
+                    font-size:15px;">
+
+            <p><strong>Email:</strong><br>{{ intern.email }}</p>
+            <p><strong>Phone:</strong><br>{{ profile.phone }}</p>
+
+            <p><strong>Course:</strong><br>{{ profile.course }}</p>
+            <p><strong>Year:</strong><br>{{ profile.year }}</p>
+
+            <p><strong>Semester:</strong><br>{{ profile.semester }}</p>
+            <p><strong>College:</strong><br>{{ profile.college }}</p>
+
+            <p>
+                <strong>Internship Duration:</strong><br>
+                {{ profile.start_date.strftime('%d-%m-%Y') if profile.start_date else '' }}
+                -
+                {{ profile.end_date.strftime('%d-%m-%Y') if profile.end_date else '' }}
+            </p>
+
+        </div>
+        <p><strong>Internship Subjects:</strong></p>
+
+{% if intern.intern_profile.internship_subjects %}
+    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;">
+        {% for subject in intern.intern_profile.internship_subjects.split(",") %}
+            <span style="
+                background:#E8F5E9;
+                color:#2E7D32;
+                padding:6px 12px;
+                border-radius:20px;
+                font-size:13px;
+                font-weight:500;">
+                {{ subject }}
+            </span>
+        {% endfor %}
+    </div>
+{% else %}
+    <p style="color:#777;">Not specified</p>
+{% endif %}
+
+
+        <hr style="margin:30px 0; border:none; height:1px; background:#eee;">
+
+        <!-- OBJECTIVE SECTION -->
+        <h3>Objective</h3>
+
+        <div style="background:#f9f9f9;
+                    padding:20px;
+                    border-radius:8px;
+                    margin-top:15px;
+                    line-height:1.6;">
+            {{ profile.objective }}
+        </div>
+
+        <!-- BACK BUTTON -->
+        <div style="margin-top:35px;">
+            <a href="{{ url_for('admin_intern_days', intern_id=intern.id) }}"
+               style="text-decoration:none;
+                      color:#6A1B9A;
+                      font-weight:500;">
+                ← Back to Internship Days
+            </a>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

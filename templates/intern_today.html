@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Today's Work{% endblock %}
+
+{% block content %}
+<div style="max-width:800px; margin:40px auto;">
+
+    <h2>Today's Work</h2>
+
+    <p><strong>Date:</strong> {{ log.date.strftime('%d-%m-%Y') }}</p>
+    <p><strong>Login Time:</strong> {{ log.login_time.strftime('%I:%M %p') }}</p>
+
+    {% if log.logout_time %}
+        <p><strong>Logout Time:</strong> {{ log.logout_time.strftime('%I:%M %p') }}</p>
+    {% endif %}
+
+    <hr>
+
+    {% if not log.submitted %}
+
+        <!-- EDITABLE FORM -->
+        <form method="POST">
+
+            <textarea name="summary"
+                      required
+                      style="width:100%; height:120px; padding:8px;"
+                      placeholder="Write what you did today...">{{ log.summary or '' }}</textarea>
+
+            <br><br>
+
+            <input type="text"
+                   name="location"
+                   value="{{ log.location or '' }}"
+                   placeholder="Location"
+                   style="width:100%; padding:8px;">
+
+            <br><br>
+
+            <input type="text"
+                   name="schedule"
+                   value="{{ log.schedule or '' }}"
+                   placeholder="Schedule"
+                   style="width:100%; padding:8px;">
+
+            <br><br>
+
+            <button type="submit"
+                    name="submit_today"
+                    style="padding:10px 20px; background:#2E7D32; color:white; border:none; border-radius:5px;">
+            Submit & Close Day
+            </button>
+
+        </form>
+
+    {% else %}
+
+        <!-- READ ONLY AFTER SUBMIT -->
+
+        <div style="padding:20px; background:#f4f6f8; border-radius:6px;">
+            <p><strong>Summary:</strong><br>{{ log.summary }}</p>
+            <p><strong>Location:</strong> {{ log.location }}</p>
+            <p><strong>Schedule:</strong> {{ log.schedule }}</p>
+        </div>
+
+        {% if not log.logout_time %}
+            <form method="POST" style="margin-top:20px;">
+                <button type="submit"
+                        name="logout_today"
+                        onclick="return confirm('Are you sure you want to logout?');"
+                        style="padding:10px 20px; background:#C62828; color:white; border:none; border-radius:5px;">
+                    Logout
+                </button>
+            </form>
+        {% endif %}
+
+    {% endif %}
+
+</div>
+{% endblock %}

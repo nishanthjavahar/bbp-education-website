@@ -1,0 +1,15 @@
+<h3>Internship Report</h3>
+
+{% if intern.intern_profile.report_path %}
+
+    <a href="{{ url_for('static',
+        filename='reports/' + intern.intern_profile.report_path) }}"
+       target="_blank">
+        Download Internship Report
+    </a>
+
+{% else %}
+
+    <p>No report uploaded yet.</p>
+
+{% endif %}

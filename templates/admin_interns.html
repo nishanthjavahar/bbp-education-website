@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}Interns{% endblock %}
+
+{% block content %}
+<div style="
+    max-width:1100px;
+    margin:20px auto 0 auto;
+    padding:0 5px;
+">
+    <a href="{{ url_for('admin_dashboard') }}"
+       style="
+            display:inline-flex;
+            align-items:center;
+            gap:6px;
+            font-size:13px;
+            font-weight:500;
+            padding:6px 14px;
+            border-radius:20px;
+            background:#f1f3f4;
+            color:#444;
+            text-decoration:none;
+            transition:all 0.2s ease;
+       "
+       onmouseover="this.style.background='#e0e0e0'"
+       onmouseout="this.style.background='#f1f3f4'">
+
+        <span style="font-size:12px;">◀</span>
+        Dashboard
+    </a>
+</div>
+
+<div class="dashboard-container">
+
+    <h2 class="dashboard-title">Approved Interns</h2>
+
+    <!-- SEARCH BAR -->
+    <form method="GET" style="margin-bottom:20px; text-align:right;">
+        <input type="text" name="search"
+               placeholder="Search by name or email"
+               value="{{ search or '' }}"
+               style="padding:6px 10px;
+                      border:1px solid #ccc;
+                      border-radius:5px;
+                      width:250px;">
+
+        <button type="submit"
+                style="padding:6px 12px;
+                       border:none;
+                       background-color:#007bff;
+                       color:white;
+                       border-radius:5px;
+                       cursor:pointer;">
+            Search
+        </button>
+    </form>
+
+    {% if interns %}
+        <table style="width:100%; border-collapse: collapse;">
+            <tr style="background:#f2f2f2;">
+                <th style="padding:10px; border:1px solid #ddd;">Name</th>
+                <th style="padding:10px; border:1px solid #ddd;">Email</th>
+                <th style="padding:10px; border:1px solid #ddd;">Action</th>
+            </tr>
+
+            {% for intern in interns %}
+            <tr>
+                <td style="padding:10px; border:1px solid #ddd;">
+                    {{ intern.name }}
+                </td>
+                <td style="padding:10px; border:1px solid #ddd;">
+                    {{ intern.email }}
+                </td>
+                <td style="padding:10px; border:1px solid #ddd; text-align:center;">
+
+                    <form method="POST"
+                          action="{{ url_for('delete_intern', intern_id=intern.id) }}"
+                          style="display:inline;">
+
+                        <button type="submit"
+                                onclick="return confirm('Are you sure you want to remove this intern?');"
+                                style="background:#C62828;
+                                       color:white;
+                                       border:none;
+                                       padding:6px 12px;
+                                       border-radius:5px;
+                                       cursor:pointer;">
+                            Remove
+                        </button>
+
+                    </form>
+
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+
+    {% else %}
+        {% if search %}
+            <p style="text-align:center; margin-top:15px; color:#888;">
+                No results found for "{{ search }}"
+            </p>
+        {% else %}
+            <p>No approved interns found.</p>
+        {% endif %}
+    {% endif %}
+
+</div>
+{% endblock %}

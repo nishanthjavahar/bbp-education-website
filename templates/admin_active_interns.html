@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Active Interns{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-container">
+
+<h2>Active Interns</h2>
+
+<div class="card">
+
+{% for intern in interns %}
+    <p>
+        <strong>{{ intern.user.name }}</strong>
+        — {{ intern.college }}
+        ({{ intern.start_date }} to {{ intern.end_date }})
+    </p>
+{% else %}
+    <p>No active interns currently.</p>
+{% endfor %}
+
+</div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+{% block title %}Edit Event{% endblock %}
+
+<link href="https://unpkg.com/cropperjs/dist/cropper.css" rel="stylesheet"/>
+<script src="https://unpkg.com/cropperjs/dist/cropper.js"></script>
+
+{% block content %}
+
+<div class="admin-container">
+
+    <h2 class="admin-title">Edit Event</h2>
+
+    <div class="admin-card">
+
+        <form method="POST" enctype="multipart/form-data" id="editForm">
+
+            <div class="form-grid">
+
+                <!-- LEFT SIDE -->
+                <div>
+
+                    <label>Event Title</label>
+                    <input type="text" name="title" value="{{ event.title }}" required>
+                    <label>Event Icon (Small image)</label>
+<input type="file" name="icon" accept=".jpg,.jpeg,.png">
+<small>Recommended size: 50x50 px</small>
+
+                    <label>Description</label>
+                    <textarea name="description" rows="4" required>{{ event.description }}</textarea>
+
+                    <label>Date</label>
+                    <input type="date" name="event_date"
+                           value="{{ event.event_date.strftime('%Y-%m-%d') }}"
+                           required>
+
+                    <p class="cover-note">
+                        First selected image will be used as Cover Image.
+                    </p>
+
+                    <input type="file"
+                           name="images"
+                           id="imageInput"
+                           multiple
+                           accept=".jpg,.jpeg,.png">
+
+                    <input type="hidden" name="cropped_images" id="croppedImages">
+
+                    <button type="submit" class="btn-primary">
+                        Update Event
+                    </button>
+
+                </div>
+
+                <!-- RIGHT SIDE -->
+                <div>
+
+                    <h4>Existing Images</h4>
+                    <div class="preview-grid">
+
+                        {% for img in event.images %}
+                        <div class="preview-box">
+                            <img src="{{ url_for('static', filename='images/events/' ~ img.filename) }}"
+                                 onclick="openPreview(this.src)">
+                        </div>
+                        {% endfor %}
+
+                    </div>
+
+                    <h4 style="margin-top:20px;">New Selected Images</h4>
+                    <div id="previewContainer" class="preview-grid"></div>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<!-- CROP MODAL -->
+<div id="cropModal" style="
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.7);
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+">
+    <div style="
+        background:white;
+        padding:20px;
+        border-radius:12px;
+        max-width:900px;
+        width:95%;
+    ">
+        <img id="cropImage" style="max-width:100%;">
+        <div style="margin-top:15px; text-align:right;">
+            <button onclick="saveCrop()">Save Crop</button>
+            <button onclick="closeCrop()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let cropper;
+let currentIndex = 0;
+
+document.getElementById("imageInput").addEventListener("change", function(e){
+
+    const container = document.getElementById("previewContainer");
+    container.innerHTML = "";
+
+    Array.from(e.target.files).forEach((file, index) => {
+
+        const reader = new FileReader();
+
+        reader.onload = function(event){
+
+            const wrapper = document.createElement("div");
+            wrapper.classList.add("preview-box");
+
+            const img = document.createElement("img");
+            img.src = event.target.result;
+            img.dataset.index = index;
+
+            img.onclick = function(){
+                openCrop(this.src, index);
+            }
+
+            if(index === 0){
+                const badge = document.createElement("span");
+                badge.innerText = "COVER";
+                badge.classList.add("cover-badge");
+                wrapper.appendChild(badge);
+            }
+
+            wrapper.appendChild(img);
+            container.appendChild(wrapper);
+        }
+
+        reader.readAsDataURL(file);
+    });
+});
+
+function openCrop(src, index){
+    currentIndex = index;
+
+    const modal = document.getElementById("cropModal");
+    const cropImage = document.getElementById("cropImage");
+
+    cropImage.src = src;
+    modal.style.display = "flex";
+
+    cropper = new Cropper(cropImage, {
+        viewMode: 1,
+        autoCropArea: 1,
+        movable: true,
+        zoomable: true,
+        scalable: true,
+        cropBoxResizable: true
+    });
+}
+
+function closeCrop(){
+    if(cropper){
+        cropper.destroy();
+    }
+    document.getElementById("cropModal").style.display = "none";
+}
+
+function saveCrop(){
+
+    const canvas = cropper.getCroppedCanvas();
+    const base64 = canvas.toDataURL("image/jpeg", 0.9);
+
+    document.getElementById("croppedImages").value = base64;
+
+    const img = document.querySelector(`[data-index="${currentIndex}"]`);
+    img.src = base64;
+
+    alert("Cover image cropped successfully!");
+
+    closeCrop();
+}
+
+function openPreview(src){
+    const modal = document.getElementById("cropModal");
+    const cropImage = document.getElementById("cropImage");
+    cropImage.src = src;
+    modal.style.display = "flex";
+}
+</script>
+
+{% endblock %}

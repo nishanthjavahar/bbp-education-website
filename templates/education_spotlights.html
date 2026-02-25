@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Education Spotlights{% endblock %}
+
+{% block content %}
+
+<section class="spotlight-section">
+    <h2 class="section-title">Education Spotlights</h2>
+    
+
+    {% for event in events %}
+    <div class="spotlight-card">
+
+        <!-- LEFT SIDE -->
+        <div class="spotlight-content">
+
+    <!-- ICON + TITLE -->
+    <div class="spotlight-title-wrapper">
+
+        {% if event.icon %}
+            <img src="{{ url_for('static', filename='images/events/' ~ event.icon) }}"
+                 class="event-icon">
+        {% endif %}
+
+        <h3 class="spotlight-title">
+            <!--span class="event-icon">{{ event.icon }}</span-->
+            {{ event.title }}
+        </h3>
+
+    </div>
+
+    <div class="spotlight-date">
+    <br>Celebrated On: {{ event.event_date.strftime("%d-%m-%Y") }}
+</div>
+
+
+    <p class="spotlight-desc">
+        {{ event.description[:180] }}...
+    </p>
+
+    <div class="spotlight-button-wrapper">
+        <a href="{{ url_for('spotlight_detail', event_id=event.id) }}"
+           class="spotlight-btn">
+            See More 🌿
+        </a>
+    </div>
+
+</div>
+
+        <!-- RIGHT SIDE -->
+        <div class="spotlight-image">
+    {% if event.images %}
+        <img src="{{ url_for('static', filename='images/events/' ~ event.images[0].filename) }}"
+             alt="Cover Image"
+             class="preview-img"
+             onclick="openPreview(this.src)">
+    {% else %}
+        <img src="{{ url_for('static', filename='logo.png') }}"
+             alt="Default Image">
+    {% endif %}
+</div>
+
+
+    </div>
+    {% endfor %}
+
+</section>
+<!-- IMAGE PREVIEW MODAL -->
+<div id="imagePreviewModal" class="preview-modal" onclick="closePreview()">
+    <img id="previewImage">
+</div>
+<a href="{{ url_for('home') }}"
+       style="
+            display:inline-flex;
+            align-items:center;
+            gap:8px;
+            padding:8px 18px;
+            border-radius:30px;
+            background:#F3F6F2;
+            border:1px solid #DCE5DC;
+            color:#2E7D32;
+            font-size:14px;
+            font-weight:500;
+            text-decoration:none;
+            transition:all 0.25s ease;
+       "
+       onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.08)'"
+       onmouseout="this.style.boxShadow='none'">
+
+        <span>←</span>
+        Back to Home
+    </a>
+
+<script>
+function openPreview(src) {
+    document.getElementById("previewImage").src = src;
+    document.getElementById("imagePreviewModal").style.display = "flex";
+}
+
+function closePreview() {
+    document.getElementById("imagePreviewModal").style.display = "none";
+}
+</script>
+{% endblock %}

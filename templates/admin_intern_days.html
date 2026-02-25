@@ -1,0 +1,309 @@
+{% extends "base.html" %}
+{% block title %}Intern Days{% endblock %}
+
+{% block content %}
+{% if rejected %}
+
+<div style="max-width:900px; margin:60px auto;">
+
+    <div style="background:white;
+                padding:40px;
+                border-radius:14px;
+                box-shadow:0 8px 25px rgba(0,0,0,0.08);">
+
+        <h2 style="color:#C62828;">
+            Application Rejected
+        </h2>
+
+        <p style="margin-top:15px; color:#666;">
+            This internship application has been rejected.
+            No internship actions are available.
+        </p>
+
+        <br>
+
+        <a href="{{ url_for('admin_view_application', intern_id=intern.id) }}"
+           style="padding:10px 18px;
+                  background:#1565C0;
+                  color:white;
+                  border-radius:6px;
+                  text-decoration:none;">
+            View Application
+        </a>
+
+    </div>
+</div>
+
+{% else %}
+
+<div style="max-width:1000px; margin:50px auto;">
+
+    {% set profile = intern.intern_profile %}
+
+    <div style="background:white;
+                padding:40px;
+                border-radius:12px;
+                box-shadow:0 8px 25px rgba(0,0,0,0.08);">
+
+        <!-- HEADER -->
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+
+            <h2 style="margin:0; font-size:28px;">
+                {{ intern.name }} - Internship Days
+            </h2>
+
+            <a href="{{ url_for('admin_view_application', intern_id=intern.id) }}"
+               style="padding:10px 18px;
+                      background:#1565C0;
+                      color:white;
+                      border-radius:6px;
+                      text-decoration:none;
+                      font-weight:500;">
+                View Application
+            </a>
+        </div>
+
+        <hr style="margin:30px 0; border:none; height:1px; background:#eee;">
+
+        <!-- ================= CLOSE / REOPEN SECTION ================= -->
+        <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:20px;">
+
+            {% if profile.is_completed %}
+
+    <!-- SHOW WHEN FINISHED -->
+    <form method="POST"
+          action="{{ url_for('reopen_internship', intern_id=intern.id) }}"
+          onsubmit="return confirm('Reopen this internship?');"
+          style="margin-bottom:20px;">
+
+        <button type="submit"
+                style="padding:10px 20px;
+                       background:#1565C0;
+                       color:white;
+                       border:none;
+                       border-radius:6px;">
+            Reopen Internship
+        </button>
+    </form>
+
+{% else %}
+
+    <!-- SHOW WHEN ACTIVE -->
+    <form method="POST"
+action="{{ url_for('close_internship', user_id=intern.id) }}"
+          onsubmit="return confirm('Finish this internship?');"
+          style="margin-bottom:20px;">
+
+        <button type="submit"
+                style="padding:10px 20px;
+                       background:#C62828;
+                       color:white;
+                       border:none;
+                       border-radius:6px;">
+            Finish Internship
+        </button>
+    </form>
+
+{% endif %}
+
+
+        </div>
+
+        <!-- ================= REPORT SECTION ================= -->
+        <hr style="margin:30px 0;">
+        <h3>Internship Report</h3>
+
+        {% if profile and profile.report_file %}
+
+            <div style="margin-top:15px; display:flex; gap:12px; flex-wrap:wrap;">
+
+                <a href="{{ url_for('admin_view_report', intern_id=intern.id) }}"
+                   target="_blank"
+                   style="padding:10px 18px;
+                          background:#2E7D32;
+                          color:white;
+                          border-radius:6px;
+                          text-decoration:none;">
+                    View Report
+                </a>
+
+                <form method="POST"
+                      action="{{ url_for('admin_delete_report', intern_id=intern.id) }}">
+                    <button type="submit"
+                            onclick="return confirm('Delete this report?');"
+                            style="padding:10px 18px;
+                                   background:#C62828;
+                                   color:white;
+                                   border:none;
+                                   border-radius:6px;">
+                        Delete Report
+                    </button>
+                </form>
+
+                {% if not profile.is_completed %}
+                <form method="POST"
+                      action="{{ url_for('complete_internship', intern_id=intern.id) }}"
+                      onsubmit="return confirm('This action will finalize the internship and generate the official certificate. Continue?');">
+                    <button type="submit"
+                            style="padding:10px 18px;
+                                   background:#6A1B9A;
+                                   color:white;
+                                   border:none;
+                                   border-radius:6px;">
+                        Complete Internship
+                    </button>
+                </form>
+                {% endif %}
+
+            </div>
+
+        {% elif profile and profile.report_upload_enabled %}
+
+            <p style="margin-top:15px; color:#1565C0; font-weight:500;">
+                Report Upload Enabled (Waiting for submission)
+            </p>
+
+        {% else %}
+
+            <form method="POST"
+                  action="{{ url_for('admin_enable_report', intern_id=intern.id) }}"
+                  style="margin-top:15px;">
+                <button type="submit"
+                        style="padding:10px 18px;
+                               background:#C62828;
+                               color:white;
+                               border:none;
+                               border-radius:6px;">
+                    Enable Report Submission
+                </button>
+            </form>
+
+        {% endif %}
+            {% if not profile.daily_log_enabled %}
+<form method="POST"
+      action="{{ url_for('enable_daily_logs', intern_id=intern.id) }}"
+      style="margin-top:15px;">
+    <button type="submit"
+            style="padding:8px 15px;
+                   background:#1565C0;
+                   color:white;
+                   border:none;
+                   border-radius:6px;">
+        Re-enable Daily Logging
+    </button>
+</form>
+{% endif %}
+
+        <!-- ================= SURVEY SECTION ================= -->
+        <hr style="margin:30px 0;">
+        <h3>Internship Post Survey</h3>
+
+        {% if profile and profile.survey_completed %}
+
+            <p><strong>Rating:</strong> {{ profile.survey_rating }} / 5</p>
+
+            <div style="background:#f5f5f5; padding:15px; border-radius:6px; margin-top:10px;">
+                {{ profile.survey_feedback }}
+            </div>
+
+            <form method="POST"
+                  action="{{ url_for('admin_delete_survey', intern_id=intern.id) }}"
+                  style="margin-top:15px;"
+                  onsubmit="return confirm('Delete this survey?');">
+                <button type="submit"
+                        style="padding:8px 15px;
+                               background:#C62828;
+                               color:white;
+                               border:none;
+                               border-radius:5px;">
+                    Delete Survey
+                </button>
+            </form>
+
+        {% else %}
+            <p style="color:#777;">No survey submitted.</p>
+        {% endif %}
+
+        <!-- ================= CERTIFICATE SECTION ================= -->
+        {% if profile and profile.is_completed %}
+
+            <hr style="margin:30px 0;">
+            <h3>Internship Certificate</h3>
+
+            <div style="display:flex; gap:12px; flex-wrap:wrap;">
+
+                <a href="{{ url_for('admin_download_certificate', intern_id=intern.id) }}"
+                   target="_blank"
+                   style="padding:10px 18px;
+                          background:#2E7D32;
+                          color:white;
+                          border-radius:6px;
+                          text-decoration:none;">
+                    Download Certificate
+                </a>
+
+                <form method="POST"
+                      action="{{ url_for('delete_certificate', intern_id=intern.id) }}"
+                      onsubmit="return confirm('Remove this certificate?');">
+                    <button type="submit"
+                            style="padding:10px 18px;
+                                   background:#C62828;
+                                   color:white;
+                                   border:none;
+                                   border-radius:6px;">
+                        Remove Certificate
+                    </button>
+                </form>
+
+            </div>
+
+        {% endif %}
+
+        <!-- ================= DAILY RECORDS ================= -->
+        <hr style="margin:30px 0;">
+        <h3>Intern Daily Records</h3>
+
+        {% if logs %}
+            {% for log in logs %}
+                <div style="padding:18px;
+                            background:#f9f9f9;
+                            border-radius:8px;
+                            margin-bottom:15px;
+                            display:flex;
+                            justify-content:space-between;
+                            align-items:center;">
+
+                    <div>
+                        <strong>Day {{ loop.index }}</strong>
+                        <span style="color:#666;">
+                            ({{ log.date.strftime('%A') }}, {{ log.date.strftime('%d-%m-%Y') }})
+                        </span>
+                    </div>
+
+                    <a href="{{ url_for('admin_intern_day_detail',
+                                        intern_id=intern.id,
+                                        log_id=log.id) }}"
+                       style="color:#2E7D32;
+                              font-weight:500;
+                              text-decoration:none;">
+                        Open →
+                    </a>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p style="color:#777;">No daily records found.</p>
+        {% endif %}
+
+        <!-- BACK BUTTON -->
+        <div style="margin-top:30px;">
+            <a href="{{ url_for('admin_intern_records') }}"
+               style="text-decoration:none; color:#6A1B9A; font-weight:500;">
+                ← Back to Intern List
+            </a>
+        </div>
+
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}

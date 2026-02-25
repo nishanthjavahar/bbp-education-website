@@ -1,0 +1,63 @@
+/* ===== CLEAN GALLERY MODAL ===== */
+
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.9);
+    z-index: 9999;
+
+    justify-content: center;
+    align-items: center;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    max-width: 90vw;
+    max-height: 90vh;
+    object-fit: contain;
+    border-radius: 12px;
+}
+
+.nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 50px;
+    color: white;
+    background: none;
+    border: none;
+    cursor: pointer;
+    user-select: none;
+}
+
+.prev { left: 40px; }
+.next { right: 40px; }
+
+.close-btn {
+    position: absolute;
+    top: 25px;
+    right: 40px;
+    font-size: 45px;
+    color: white;
+    cursor: pointer;
+    user-select: none;
+}
+
+@media (max-width: 768px) {
+    .modal-content {
+        max-width: 95vw;
+        max-height: 80vh;
+    }
+
+    .nav-btn {
+        font-size: 24px;
+        padding: 8px 12px;
+    }
+}
+
+.nav-btn.prev { left: 30px; }
+.nav-btn.next { right: 30px; }

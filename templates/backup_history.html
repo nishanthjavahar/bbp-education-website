@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Backup History{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <h2>Backup History</h2>
+
+    <div class="dashboard-grid">
+        <hr>
+<h3>Restore Backup</h3>
+
+<form method="POST" action="{{ url_for('restore_backup') }}" enctype="multipart/form-data">
+    <input type="file" name="backup_file" required>
+    <button type="submit">Restore</button>
+</form>
+
+<hr>
+
+        {% for file in files %}
+        <div class="dashboard-card">
+            <p>{{ file }}</p>
+            <a href="{{ url_for('download_backup', filename=file) }}">
+                Download
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}Manage Volunteers{% endblock %}
+
+{% block content %}
+<div style="
+    max-width:1100px;
+    margin:20px auto 0 auto;
+    padding:0 5px;
+">
+    <a href="{{ url_for('admin_dashboard') }}"
+       style="
+            display:inline-flex;
+            align-items:center;
+            gap:6px;
+            font-size:13px;
+            font-weight:500;
+            padding:6px 14px;
+            border-radius:20px;
+            background:#f1f3f4;
+            color:#444;
+            text-decoration:none;
+            transition:all 0.2s ease;
+       "
+       onmouseover="this.style.background='#e0e0e0'"
+       onmouseout="this.style.background='#f1f3f4'">
+
+        <span style="font-size:12px;">◀</span>
+        Dashboard
+    </a>
+</div>
+
+
+<div style="
+    max-width: 900px;
+    margin: 40px auto;
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+">
+
+    <h2 style="margin-bottom: 20px;">Volunteer Management</h2>
+
+    {% if volunteers %}
+    <form method="GET" style="margin-bottom:20px; text-align:right;">
+    <input type="text" name="search"
+           placeholder="Search by name or email"
+           value="{{ search or '' }}"
+           style="
+               padding:6px 10px;
+               border:1px solid #ccc;
+               border-radius:5px;
+               width:250px;
+           ">
+
+    <button type="submit"
+            style="
+                padding:6px 12px;
+                border:none;
+                background-color:#007bff;
+                color:white;
+                border-radius:5px;
+                cursor:pointer;
+            ">
+        Search
+    </button>
+</form>
+
+    <table style="
+    width:100%;
+    border-collapse: collapse;
+    font-size: 14px;
+">
+
+    <thead>
+        <tr style="background-color:#f8f9fa;">
+            <th style="padding:10px; border:1px solid #e0e0e0;">Name</th>
+            <th style="padding:10px; border:1px solid #e0e0e0;">Email</th>
+            <th style="padding:10px; border:1px solid #e0e0e0;">Role</th>
+            <th style="padding:10px; border:1px solid #e0e0e0;">Action</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for volunteer in volunteers %}
+        <tr>
+            <td style="padding:10px; border:1px solid #e0e0e0;">
+                {{ volunteer.name }}
+            </td>
+
+            <td style="padding:10px; border:1px solid #e0e0e0;">
+                {{ volunteer.email }}
+            </td>
+
+            <td style="padding:10px; border:1px solid #e0e0e0;">
+                {{ volunteer.role }}
+            </td>
+
+            <td style="padding:10px; border:1px solid #e0e0e0; text-align:center;">
+                <a href="{{ url_for('delete_volunteer', user_id=volunteer.id) }}"
+                   style="color:#dc3545; text-decoration:none;">
+                   Delete
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+
+</table>
+
+
+    {% else %}
+        <p style="text-align:center; margin-top:20px;">
+            No volunteers available.
+        </p>
+    {% endif %}
+
+</div>
+
+{% endblock %}

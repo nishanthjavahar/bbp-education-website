@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Volunteer Dashboard{% endblock %}
+
+{% block content %}
+<div class="container" style="padding:40px;">
+
+    <h2>Welcome, {{ session.user_name }}</h2>
+    <hr>
+
+    <div class="card">
+        <h3>Assigned Task</h3>
+        <p>Assist in Wildlife Awareness Camp – Sunday 10 AM</p>
+        <p>Status: Pending</p>
+    </div>
+
+    <div class="card">
+        <h3>Upcoming Event</h3>
+        <p>School Outreach Program – Friday 2 PM</p>
+    </div>
+
+</div>
+{% endblock %}

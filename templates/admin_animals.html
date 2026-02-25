@@ -1,0 +1,299 @@
+{% extends "base.html" %}
+{% block title %}Manage Animals{% endblock %}
+
+{% block content %}
+<div style="
+    max-width:1100px;
+    margin:20px auto 0 auto;
+    padding:0 5px;
+">
+    <a href="{{ url_for('admin_dashboard') }}"
+       style="
+            display:inline-flex;
+            align-items:center;
+            gap:6px;
+            font-size:13px;
+            font-weight:500;
+            padding:6px 14px;
+            border-radius:20px;
+            background:#f1f3f4;
+            color:#444;
+            text-decoration:none;
+            transition:all 0.2s ease;
+       "
+       onmouseover="this.style.background='#e0e0e0'"
+       onmouseout="this.style.background='#f1f3f4'">
+
+        <span style="font-size:12px;">◀</span>
+        Dashboard
+    </a>
+</div>
+
+
+<!-- CropperJS CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+
+<div style="max-width:1100px; margin:50px auto;">
+
+    <div style="background:white;
+                padding:40px;
+                border-radius:14px;
+                box-shadow:0 10px 30px rgba(0,0,0,0.08);">
+
+        <h2 style="margin-bottom:30px;">Manage Animals</h2>
+
+            <form method="POST" enctype="multipart/form-data">
+
+            <!-- GRID -->
+            <div style="display:grid;
+                        grid-template-columns:1fr 1fr;
+                        gap:20px;">
+
+                <input type="text" name="common_name"
+                       placeholder="Common Name" required
+                       style="padding:12px; border:1px solid #ddd; border-radius:8px;">
+
+                <input type="text" name="scientific_name"
+                       placeholder="Scientific Name" required
+                       style="padding:12px; border:1px solid #ddd; border-radius:8px;">
+
+                <select name="habitat" required
+                        style="padding:12px; border:1px solid #ddd; border-radius:8px;">
+                    <option value="">Select Habitat</option>
+                    <option>Grassland</option>
+                    <option>Forest</option>
+                    <option>Savanna</option>
+                    <option>Shrubland</option>
+                    <option>Wetlands (inland)</option>
+                    <option>Rocky areas (eg. inland cliffs, mountain peaks)</option>
+                    <option>Caves and Subterranean Habitats (non-aquatic)</option>
+                    <option>Desert</option>
+                    <option>Marine Neritic</option>
+                    <option> Marine Oceanic</option>
+                    <option>Artificial/Terrestrial</option>
+                    <option>Artificial/Aquatic & Marine</option>
+                    <option>Introduced vegetation</option>
+                    <option>Mixed Habitat</option>
+                </select>
+
+                <select name="conservation_status" required
+                        style="padding:12px; border:1px solid #ddd; border-radius:8px;">
+                    <option value="">Select Conservation Status</option>
+                    <option>Least Concern</option>
+                    <option>Near Threatened</option>
+                    <option>Vulnerable</option>
+                    <option>Endangered</option>
+                    <option>Critically Endangered</option>
+
+                </select>
+
+            </div>
+
+            <br>
+
+            <!-- DESCRIPTION -->
+            <textarea name="description" rows="4"
+                      placeholder="Description"
+                      style="width:100%; padding:12px; border:1px solid #ddd; border-radius:8px;"></textarea>
+
+            <br><br>
+
+            <!-- IMAGE UPLOAD -->
+            <div style="margin-top:20px;">
+
+                <label style="font-weight:500;">Animal Image</label><br><br>
+
+                <input type="file"
+       id="imageInput"
+       name="image"
+       accept="image/*"
+       required>
+
+
+                <br><br>
+
+                <div style="
+        width:100%;
+        max-width:700px;
+        max-height:500px;
+        overflow:auto;
+        border:1px solid #ddd;
+        border-radius:12px;
+        padding:10px;
+        background:#fafafa;">
+        
+    <img id="imagePreview"
+         style="
+            display:none;
+            max-width:100%;
+            height:auto;
+            border-radius:8px;">
+</div>
+
+
+                <br>
+
+                <button type="button"
+                        id="cropBtn"
+                        style="padding:8px 15px;
+                               background:#2E7D32;
+                               color:white;
+                               border:none;
+                               border-radius:6px;
+                               display:none;">
+                    Crop Image
+                </button>
+
+                <input type="hidden"
+                       name="cropped_image"
+                       id="croppedImage">
+
+            </div>
+
+            <br>
+
+            <button type="submit"
+                    style="padding:12px 25px;
+                           background:#2E7D32;
+                           color:white;
+                           border:none;
+                           border-radius:8px;
+                           font-weight:500;">
+                Add Animal
+            </button>
+
+        </form>
+    </div>
+
+    <!-- EXISTING ANIMALS -->
+    <div style="background:white;
+                padding:35px;
+                border-radius:14px;
+                box-shadow:0 8px 25px rgba(0,0,0,0.06);
+                margin-top:40px;">
+
+        <h3 style="margin-bottom:20px;">Existing Animals</h3>
+
+        {% for animal in animals %}
+        <div style="display:flex;
+                    justify-content:space-between;
+                    align-items:center;
+                    padding:18px;
+                    border-radius:10px;
+                    background:#f9f9f9;
+                    margin-bottom:15px;">
+
+            <div>
+                <strong>{{ animal.common_name }}</strong>
+                <span style="color:#666;">
+                    — {{ animal.habitat }} | {{ animal.conservation_status }}
+                </span>
+            </div>
+
+            <div style="display:flex; gap:12px;">
+                <a href="{{ url_for('edit_animal', animal_id=animal.id) }}"
+                   style="padding:6px 14px;
+                          background:#1565C0;
+                          color:white;
+                          border-radius:6px;
+                          text-decoration:none;">
+                    Edit
+                </a>
+
+                <a href="{{ url_for('delete_animal', animal_id=animal.id) }}"
+                   onclick="return confirm('Are you sure you want to delete this animal?')"
+                   style="padding:6px 14px;
+                          background:#C62828;
+                          color:white;
+                          border-radius:6px;
+                          text-decoration:none;">
+                    Delete
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+
+        {% if not animals %}
+            <p style="color:#777;">No animals added yet.</p>
+        {% endif %}
+
+    </div>
+
+</div>
+
+<!-- ================= CROP SCRIPT ================= -->
+<script>
+let cropper;
+const imageInput = document.getElementById('imageInput');
+const imagePreview = document.getElementById('imagePreview');
+const cropBtn = document.getElementById('cropBtn');
+
+imageInput.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = function(event) {
+        imagePreview.src = event.target.result;
+        imagePreview.style.display = 'block';
+        cropBtn.style.display = 'inline-block';
+
+        imagePreview.onload = function () {
+            if (cropper) cropper.destroy();
+
+            cropper = new Cropper(imagePreview, {
+                aspectRatio: NaN,
+                viewMode: 1,
+                autoCropArea: 1,
+                responsive: true,
+                background: false
+            });
+        };
+    };
+
+    reader.readAsDataURL(file);
+});
+
+cropBtn.addEventListener('click', function() {
+
+    if (!cropper) {
+        alert("Select an image first.");
+        return;
+    }
+
+    const canvas = cropper.getCroppedCanvas({
+        maxWidth: 1400,
+        maxHeight: 1400,
+        imageSmoothingQuality: "high"
+    });
+
+    canvas.toBlob(function(blob) {
+
+        const newFile = new File(
+            [blob],
+            "cropped.webp",
+            { type: "image/webp" }
+        );
+
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(newFile);
+
+        imageInput.files = dataTransfer.files;
+
+        // 🔥 IMPORTANT — show cropped preview
+        imagePreview.src = URL.createObjectURL(newFile);
+
+        alert("Image cropped and replaced successfully!");
+
+    }, "image/webp", 0.82);
+});
+
+</script>
+
+
+
+
+{% endblock %}

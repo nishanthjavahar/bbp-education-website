@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% block title %}{{ event.title }}{% endblock %}
+
+{% block content %}
+
+<div style="background:#f1f8e9; padding:60px 20px; min-height:100vh;">
+
+    <div style="max-width:1000px; margin:auto;">
+
+        <h1 style="text-align:center; color:#1B5E20;">
+            🌳 {{ event.title }}
+            
+        </h1>
+        
+
+        <p style="text-align:center; max-width:700px; margin:20px auto;">
+            {{ event.description }}
+        </p>
+
+        <!-- ================= GALLERY ================= -->
+        <div class="gallery-grid" style="
+            margin-top:50px;
+            display:grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap:25px;
+        ">
+            {% for image in event.images %}
+                <img src="{{ url_for('static', filename='images/events/' ~ image.filename) }}"
+                     class="gallery-img"
+                     onclick="openLightbox({{ loop.index0 }})"
+                     style="
+                        width:100%;
+                        height:220px;
+                        object-fit:cover;
+                        border-radius:12px;
+                        cursor:pointer;
+                        transition:0.3s;
+                     "
+                     onmouseover="this.style.transform='scale(1.04)'"
+                     onmouseout="this.style.transform='scale(1)'">
+            {% endfor %}
+        </div>
+
+        <!-- BACK BUTTON -->
+        <div style="text-align:center; margin-top:50px;">
+            <a href="{{ url_for('education_spotlights') }}"
+               style="
+                    padding:10px 20px;
+                    background:#2E7D32;
+                    color:white;
+                    border-radius:25px;
+                    text-decoration:none;
+                    transition:0.3s;
+               "
+               onmouseover="this.style.background='#1B5E20'"
+               onmouseout="this.style.background='#2E7D32'">
+                ← Back to Spotlights
+            </a>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ================= LIGHTBOX MODAL ================= -->
+
+<div id="lightbox" class="lightbox" style="
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.9);
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+">
+
+    <span class="close-btn"
+          onclick="closeLightbox()"
+          style="
+            position:absolute;
+            top:20px;
+            right:30px;
+            font-size:40px;
+            color:white;
+            cursor:pointer;
+          ">
+        ×
+    </span>
+
+    <button class="nav prev"
+            onclick="prevImage()"
+            style="
+                position:absolute;
+                left:30px;
+                font-size:40px;
+                background:none;
+                border:none;
+                color:white;
+                cursor:pointer;
+            ">
+        ❮
+    </button>
+
+    <img id="lightbox-img"
+         style="
+            max-width:90%;
+            max-height:85%;
+            border-radius:12px;
+         ">
+
+    <button class="nav next"
+            onclick="nextImage()"
+            style="
+                position:absolute;
+                right:30px;
+                font-size:40px;
+                background:none;
+                border:none;
+                color:white;
+                cursor:pointer;
+            ">
+        ❯
+    </button>
+
+</div>
+
+<!-- ================= JAVASCRIPT ================= -->
+
+<script>
+let currentIndex = 0;
+let images = [];
+
+document.addEventListener("DOMContentLoaded", function(){
+    images = Array.from(document.querySelectorAll(".gallery-img"));
+});
+
+function openLightbox(index) {
+    currentIndex = index;
+    document.getElementById("lightbox").style.display = "flex";
+    updateImage();
+}
+
+function closeLightbox() {
+    document.getElementById("lightbox").style.display = "none";
+}
+
+function updateImage() {
+    document.getElementById("lightbox-img").src = images[currentIndex].src;
+}
+
+function nextImage() {
+    currentIndex = (currentIndex + 1) % images.length;
+    updateImage();
+}
+
+function prevImage() {
+    currentIndex = (currentIndex - 1 + images.length) % images.length;
+    updateImage();
+}
+
+/* KEYBOARD SUPPORT */
+document.addEventListener("keydown", function(e) {
+
+    if(document.getElementById("lightbox").style.display === "flex"){
+
+        if(e.key === "ArrowRight") nextImage();
+        if(e.key === "ArrowLeft") prevImage();
+        if(e.key === "Escape") closeLightbox();
+    }
+
+});
+</script>
+
+{% endblock %}

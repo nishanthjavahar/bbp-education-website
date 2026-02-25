@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block content %}
+
+<section style="max-width:900px;margin:60px auto;padding:0 20px;">
+
+    <h2 style="color:#1B5E20;margin-bottom:10px;">
+        {{ post.title }}
+    </h2>
+
+    <p style="color:#888;font-size:14px;">
+        Published on {{ post.created_at.strftime("%d %B %Y") }}
+        • 👁 {{ post.views }} views
+    </p>
+
+    {% if post.image %}
+    <img src="{{ url_for('static', filename='uploads/outreach/' ~ post.image) }}"
+         style="width:100%;margin:20px 0;border-radius:12px;">
+    {% endif %}
+
+    <p style="line-height:1.7;color:#444;">
+        {{ post.description }}
+    </p>
+
+</section>
+
+{% endblock %}

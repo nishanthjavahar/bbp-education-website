@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/gallery.css') }}">
+
+    <meta charset="UTF-8">
+    <title>{% block title %}BBP Education{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/cropperjs/dist/cropper.css" rel="stylesheet"/>
+<script src="https://unpkg.com/cropperjs/dist/cropper.js"></script>
+    <!-- MAIN CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<!-- HEADER -->
+<!-- TOP STRIPE -->
+<div class="top-stripe"></div>
+
+<!-- HEADER -->
+<header class="nature-header">
+
+    <div class="nav-left">
+        <img src="{{ url_for('static', filename='images/bbp-logo.png') }}" class="nav-logo">
+
+        <span class="edu-title">Education Department</span>
+    </div>
+<nav class="nav-right">
+    <a href="{{ url_for('home') }}">Home</a>
+    <a href="{{ url_for('about_education') }}">About</a>
+    <a href="{{ url_for('contact') }}">Contact</a>
+
+    <div class="dropdown">
+    <span class="dropdown-toggle">Login ▾</span>
+
+    <div class="dropdown-content">
+        <a href="{{ url_for('admin_login') }}">
+            Education Officer Login
+        </a>
+
+        <a href="{{ url_for('volunteer_login') }}">
+            Volunteer Login
+        </a>
+
+        <!--a href="{{ url_for('volunteer_register') }}">
+            Volunteer Register
+        </a-->
+
+        <a href="{{ url_for('intern_login') }}">
+            Intern Login
+        </a>
+
+        <!--a href="{{ url_for('intern_register') }}">
+            Intern Register
+        </a-->
+    </div>
+</div>
+
+</nav>
+
+
+
+</header>
+
+
+
+
+
+<!-- MAIN CONTENT -->
+<main>
+{% if request.path.startswith('/admin') and request.path != '/admin/dashboard' %}
+    
+{% endif %}
+{% if request.endpoint and request.endpoint.startswith('intern_') and request.endpoint != 'intern_dashboard' %}
+    
+{% endif %}
+
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div style="max-width:600px;margin:20px auto;">
+                {% for category, message in messages %}
+                    <div style="
+                        padding:10px;
+                        margin-bottom:10px;
+                        border-radius:5px;
+                        background:
+                          {% if category == 'danger' %}#f8d7da;
+                          {% elif category == 'warning' %}#fff3cd;
+                          {% else %}#d4edda;
+                          {% endif %}
+                        ">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+</main>
+
+
+<!-- FOOTER -->
+<footer class="footer">
+    <p><strong>Bannerughatta Biological Park – Education Department</strong></p>
+    <p>Wildlife education • Conservation awareness • Community outreach</p>
+</footer>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+
+    const loginToggle = document.querySelector(".dropdown-toggle");
+    const dropdown = document.querySelector(".dropdown-content");
+
+    loginToggle.addEventListener("click", function(e) {
+        e.stopPropagation();
+        dropdown.classList.toggle("show");
+    });
+
+    document.addEventListener("click", function() {
+        dropdown.classList.remove("show");
+    });
+
+});
+</script>
+
+<script>
+function openModal(src) {
+    document.getElementById("imageModal").style.display = "block";
+    document.getElementById("modalImage").src = src;
+}
+
+function closeModal() {
+    document.getElementById("imageModal").style.display = "none";
+}
+</script>
+
+</body>
+</html>

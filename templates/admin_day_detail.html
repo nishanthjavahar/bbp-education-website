@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Day Detail{% endblock %}
+
+{% block content %}
+
+<div style="max-width:800px; margin:40px auto;">
+
+    <h2>{{ intern.name }} - {{ log.date.strftime('%d-%m-%Y') }}</h2>
+    <hr>
+
+    <p><strong>Login Time:</strong>
+        {{ log.login_time.strftime('%H:%M:%S') if log.login_time else 'N/A' }}
+    </p>
+
+    <p><strong>Logout Time:</strong>
+        {{ log.logout_time.strftime('%H:%M:%S') if log.logout_time else 'N/A' }}
+    </p>
+
+    <p><strong>Location:</strong>
+        {{ log.location or 'Not specified' }}
+    </p>
+
+    <p><strong>Schedule:</strong>
+        {{ log.schedule or 'Not specified' }}
+    </p>
+
+    <p><strong>Summary:</strong></p>
+    <div style="
+        padding:15px;
+        background:#f9f9f9;
+        border-radius:6px;
+    ">
+        {{ log.summary or 'No summary submitted.' }}
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+
+{% block content %}
+
+<!-- HERO SECTION (COMPACT) -->
+<section class="hero-section">
+    <div class="hero-content">
+        <h1>Welcome to the Education Department</h1>
+        <p>
+            We work towards wildlife education, conservation awareness 
+            and community outreach through interactive programs and events.
+        </p>
+    </div>
+</section>
+
+
+<!-- EXPLORE SECTION -->
+<section class="explore-section">
+
+    <h2 class="section-title">Explore Our Programs</h2>
+
+    <div class="explore-grid">
+
+        <a href="{{ url_for('education_programs') }}" class="explore-card">
+            <div class="explore-icon">📘</div>
+            <h3>📢 Upcoming Awareness Drives</h3>
+            <p>Explore upcoming wildlife awareness activities</p>
+
+        </a>
+
+
+       <a href="{{ url_for('education_spotlights') }}" class="explore-card">
+    <div class="explore-icon">👑</div>
+    <h3>Education Spotlights</h3>
+    <p>Discover featured educational programs & activities</p>
+</a>
+
+
+        <a href="{{ url_for('animals') }}" class="explore-card">
+            <div class="explore-icon">🐾</div>
+            <div class="explore-text">Animals</div>
+        </a>
+
+        <a href="{{ url_for('outreach') }}" class="explore-card">
+            <div class="explore-icon">🌍</div>
+            <div class="explore-text">Outreach</div>
+
+        </a>
+
+<a href="{{ url_for('enroll_programs') }}" class="explore-card">
+    <div class="explore-icon">
+        <i class="fa-solid fa-book-open"></i>
+    </div>
+    <div class="explore-text">
+        Enroll for Education Programs
+    </div>
+</a>
+
+
+
+        <a href="{{ url_for('gallery') }}" class="explore-card">
+            <div class="explore-icon">🖼</div>
+            <div class="explore-text">Gallery</div>
+
+        </a>
+
+    </div>
+
+</section>
+
+
+<!-- MISSION HIGHLIGHTS -->
+<section class="highlight-section">
+
+    <!--div class="highlight-card">
+        <h3>🌿 Wildlife Education</h3>
+        <p>Interactive learning experiences for schools and visitors.</p>
+    </div>
+
+    <div class="highlight-card">
+        <h3>🌎 Conservation Awareness</h3>
+        <p>Spreading awareness about biodiversity and endangered species.</p>
+    </div>
+
+    <div class="highlight-card">
+        <h3>🤝 Community Outreach</h3>
+        <p>Engaging communities through events and collaborative programs.</p>
+    </div-->
+
+</section>
+
+
+<!-- BUILD DATE -->
+<section class="build-info">
+    <p>Started to build on 03-FEB-2026</p>
+</section>
+
+{% endblock %}

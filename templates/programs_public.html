@@ -1,0 +1,286 @@
+{% extends "base.html" %}
+{% block title %}Upcoming Awareness Days{% endblock %}
+
+{% block content %}
+
+
+<section style="max-width:1100px; margin:60px auto; padding:0 20px;">
+
+    <!-- Header -->
+    <div style="text-align:center; margin-bottom:60px;">
+        <h1 style="font-size:34px; color:#1B5E20; margin-bottom:12px;">
+            Upcoming Awareness Days
+        </h1>
+        <p style="color:#666; font-size:15px;">
+            Explore wildlife awareness initiatives conducted by the Education Department.
+        </p>
+    </div>
+
+    {% if programs %}
+        {% for program in programs %}
+
+        <!-- PROGRAM CARD -->
+        <div style="
+            position:relative;
+            display:flex;
+            gap:40px;
+            background:white;
+            border-radius:22px;
+            box-shadow:0 12px 28px rgba(0,0,0,0.08);
+            margin-bottom:60px;
+            overflow:hidden;
+            transition:all 0.3s ease;
+        "
+        onmouseover="this.style.transform='translateY(-6px)'; this.style.boxShadow='0 20px 40px rgba(0,0,0,0.12)'"
+        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 12px 28px rgba(0,0,0,0.08)'">
+
+            <!-- Right Side Accent Line -->
+            <div style="
+                position:absolute;
+                top:0;
+                right:0;
+                width:6px;
+                height:100%;
+                background:#1B5E20;
+                border-top-right-radius:22px;
+                border-bottom-right-radius:22px;
+            "></div>
+
+            {% if program.image %}
+            <!-- IMAGE -->
+            <div style="
+                flex:0 0 45%;
+                min-height:320px;
+                overflow:hidden;
+                border-radius:22px 0 0 22px;
+            ">
+                <img src="{{ url_for('static', filename='uploads/programs/' ~ program.image) }}"
+                     onclick="openImage(this.src)"
+                     style="
+                        width:100%;
+                        height:100%;
+                        object-fit:cover;
+                        cursor:pointer;
+                        transition:transform 0.5s ease;
+                     "
+                     onmouseover="this.style.transform='scale(1.05)'"
+                     onmouseout="this.style.transform='scale(1)'">
+            </div>
+            {% endif %}
+
+            <!-- CONTENT -->
+            <div style="
+                flex:1;
+                padding:40px;
+            ">
+
+                <h3 style="
+                    color:#1B5E20;
+                    font-size:24px;
+                    margin-bottom:25px;
+                ">
+                    {{ program.name }}
+                </h3>
+
+                <div style="
+                    display:grid;
+                    grid-template-columns:repeat(2,minmax(200px,1fr));
+                    gap:15px 35px;
+                    margin-bottom:25px;
+                ">
+
+  <div style="margin-bottom:18px;">
+    <div style="
+        font-size:11px;
+        text-transform:uppercase;
+        letter-spacing:1.2px;
+        color:#1B5E20;
+        font-weight:700;
+        margin-bottom:6px;
+        ">
+        DATE
+    </div>
+
+    <div style="
+        font-size:16px;
+        font-weight:600;
+        color:#222;
+    ">
+        {{ program.event_date.strftime('%d %B %Y') }}
+    </div>
+</div>
+
+
+                    <div>
+        <div style="
+            font-size:11px;
+            text-transform:uppercase;
+            letter-spacing:1.2px;
+            color:#1B5E20;
+            font-weight:700;
+            margin-bottom:6px;
+        ">
+            Time
+        </div>
+
+        <div style="
+            font-size:16px;
+            font-weight:600;
+            color:#222;
+        ">
+            {{ program.start_time.strftime('%I:%M %p') }}
+            –
+            {{ program.end_time.strftime('%I:%M %p') }}
+        </div>
+    </div>
+
+                    <!-- LOCATION -->
+    <div>
+        <div style="
+            font-size:11px;
+            text-transform:uppercase;
+            letter-spacing:1.2px;
+            color:#1B5E20;
+            font-weight:700;
+            margin-bottom:6px;
+        ">
+            Location
+        </div>
+
+        <div style="
+            font-size:16px;
+            font-weight:600;
+            color:#222;
+        ">
+            {{ program.location }}
+        </div>
+    </div>
+
+                    <!-- TARGET AUDIENCE -->
+    <div>
+        <div style="
+            font-size:11px;
+            text-transform:uppercase;
+            letter-spacing:1.2px;
+            color:#1B5E20;
+            font-weight:700;
+            margin-bottom:6px;
+        ">
+            Target Audience
+        </div>
+
+        <div style="
+            font-size:16px;
+            font-weight:600;
+            color:#222;
+        ">
+            {{ program.target_audience }}
+        </div>
+    </div>
+
+                </div>
+
+                <p style="
+                    line-height:1.8;
+                    color:#555;
+                    font-size:15px;
+                ">
+                    {{ program.description }}
+                </p>
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+    {% else %}
+
+        <div style="text-align:center; margin-top:80px;">
+            <h3 style="color:#999;">No Upcoming Awareness Days</h3>
+            <p style="color:#aaa;">Please check back soon.</p>
+        </div>
+
+    {% endif %}
+
+</section>
+
+<!-- FULLSCREEN IMAGE MODAL -->
+<div id="imageModal" style="
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.85);
+    backdrop-filter:blur(5px);
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+">
+
+    <span style="
+        position:absolute;
+        top:30px;
+        right:40px;
+        font-size:36px;
+        color:white;
+        cursor:pointer;
+    " onclick="closeImage()">
+        &times;
+    </span>
+
+    <img id="modalImage"
+         style="
+            max-width:90%;
+            max-height:90%;
+            border-radius:14px;
+            box-shadow:0 20px 60px rgba(0,0,0,0.6);
+         ">
+</div>
+<a href="{{ url_for('home') }}"
+       style="
+            display:inline-flex;
+            align-items:center;
+            gap:8px;
+            padding:8px 18px;
+            border-radius:30px;
+            background:#F3F6F2;
+            border:1px solid #DCE5DC;
+            color:#2E7D32;
+            font-size:14px;
+            font-weight:500;
+            text-decoration:none;
+            transition:all 0.25s ease;
+       "
+       onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.08)'"
+       onmouseout="this.style.boxShadow='none'">
+
+        <span>←</span>
+        Back to Home
+    </a>
+<script>
+function openImage(src){
+    const modal = document.getElementById("imageModal");
+    const img = document.getElementById("modalImage");
+    img.src = src;
+    modal.style.display = "flex";
+}
+
+function closeImage(){
+    document.getElementById("imageModal").style.display = "none";
+}
+
+document.getElementById("imageModal").addEventListener("click", function(e){
+    if(e.target.id === "imageModal"){
+        closeImage();
+    }
+});
+</script>
+
+<style>
+@media(max-width:768px){
+    section div[style*="display:flex"]{
+        flex-direction:column !important;
+    }
+}
+</style>
+
+{% endblock %}

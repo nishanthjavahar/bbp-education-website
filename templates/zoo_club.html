@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Zoo Club{% endblock %}
+
+{% block content %}
+<section style="max-width:1200px;margin:60px auto;padding:0 20px;">
+
+    <!-- BACK BUTTON -->
+    <div style="
+    max-width:1200px;
+    margin:30px auto 0;
+    padding:0 0.5px;
+">
+
+    <a href="{{ url_for('enroll_programs') }}"
+       style="
+            display:inline-flex;
+            align-items:center;
+            gap:6px;
+            padding:6px 16px;
+            border-radius:30px;
+            background:transparent;
+            border:none;
+            color:#2E7D32;
+            font-size:13px;
+            font-weight:500;
+            text-decoration:none;
+            transition:all 0.5s ease;
+       "
+       onmouseover="this.style.background='#EAF3EA'"
+       onmouseout="this.style.background='#F6F8F6'">
+
+        ← Back
+    </a>
+
+</div>
+<div style="max-width:900px; margin:60px auto; text-align:center;">
+
+    <h2 style="color:#2E7D32;">Zoo Club</h2>
+
+    <div style="
+        background:white;
+        padding:50px;
+        border-radius:12px;
+        box-shadow:0 8px 25px rgba(0,0,0,0.08);
+        margin-top:30px;
+    ">
+        <h3 style="color:#777;">No programs found.</h3>
+        <p style="color:#999;">Please check back later.</p>
+    </div>
+
+</div>
+{% endblock %}

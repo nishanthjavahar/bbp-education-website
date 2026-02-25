@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Registration Successful{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-container success-card">
+
+        <div class="success-icon">🌿</div>
+
+        <h2>Registration Successful!</h2>
+
+        {% if role == "volunteer" %}
+            <p>
+                Thank you for stepping forward to support
+                <strong>wildlife education & conservation</strong>.
+            </p>
+        {% elif role == "intern" %}
+            <p>
+                Welcome aboard! Your journey in
+                <strong>wildlife education and learning</strong> begins here.
+            </p>
+        {% endif %}
+
+        <div class="success-infographic">
+            🐾 Learn • 🌱 Protect • 🐘 Inspire
+        </div>
+
+        <a href="{{ url_for('home') }}" class="success-btn">
+            Back to Home
+        </a>
+
+    </div>
+</div>
+{% endblock %}

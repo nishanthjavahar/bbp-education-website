@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+
+{% block content %}
+
+<div style="
+    min-height: 85vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+">
+
+    <div style="
+        width: 420px;
+        padding: 40px;
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    ">
+
+        <h2 style="
+            text-align:center;
+            margin-bottom:25px;
+            color:#333;
+        ">
+            Volunteer Login
+        </h2>
+        
+        <form method="POST">
+
+            <input type="email"
+                   name="email"
+                   placeholder="Email"
+                   required
+                   style="
+                       width:100%;
+                       padding:10px;
+                       margin-bottom:15px;
+                       border:1px solid #ccc;
+                       border-radius:6px;
+                   ">
+
+            <input type="password"
+                   name="password"
+                   placeholder="Password"
+                   required
+                   style="
+                       width:100%;
+                       padding:10px;
+                       margin-bottom:20px;
+                       border:1px solid #ccc;
+                       border-radius:6px;
+                   ">
+
+            <button type="submit"
+        style="
+            width:100%;
+            padding:12px;
+            background:#4CAF50;
+            color:white;
+            border:none;
+            border-radius:6px;
+            font-weight:600;
+            cursor:pointer;
+            transition:0.2s ease;
+        "
+        onmouseover="this.style.background='#43a047'"
+        onmouseout="this.style.background='#4CAF50'">
+    Login
+    
+</button>
+<p style="text-align:center; margin-top:10px;">
+    <a href="{{ url_for('forgot_password', role='volunteer') }}">
+        Forgot Password?
+    </a>
+</p>
+
+
+        </form>
+
+    </div>
+</div>
+
+{% endblock %}
