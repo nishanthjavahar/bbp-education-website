@@ -2119,3 +2119,35 @@ footer {
     }
 
 }
+.footer {
+    background-color: #0f2e1d; /* deep forest green */
+    color: #e8f5e9;
+    padding: 25px 10px;
+    text-align: center;
+    border-top: 4px solid #2e7d32;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.footer-title {
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+}
+
+.footer-tagline {
+    font-size: 13px;
+    opacity: 0.85;
+    margin-bottom: 10px;
+}
+
+.footer-dev {
+    font-size: 13px;
+    opacity: 0.75;
+}
+
+.dev-name {
+    color: #a5d6a7;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+}
