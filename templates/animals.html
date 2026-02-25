@@ -86,11 +86,11 @@
         <div class="card">
 
             {% if animal.image %}
-            <img src="{{ url_for('static', filename='images/animals/' ~ animal.image) }}"
-                 alt="{{ animal.common_name }}"
-                 onclick="openAnimalModal('{{ url_for('static', filename='images/animals/' ~ animal.image) }}')"
-                 style="cursor:pointer;">
-            {% else %}
+    <img src="{{ animal.image }}"
+         alt="{{ animal.common_name }}"
+         onclick="openAnimalModal('{{ animal.image }}')"
+         style="cursor:pointer;">
+{% else %}
             <img src="{{ url_for('static', filename='images/default-animal.png') }}"
                  alt="No image available">
             {% endif %}

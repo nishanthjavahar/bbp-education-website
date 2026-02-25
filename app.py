@@ -1353,49 +1353,49 @@ def admin_animals():
             description=request.form["description"]
         )
 
-        upload_folder = os.path.join(
-            app.static_folder,
-            "images",
-            "animals"
-        )
-        os.makedirs(upload_folder, exist_ok=True)
+        # ================= CLOUDINARY IMAGE HANDLING =================
+        image_url = None
 
-        # ================= IMAGE HANDLING =================
         cropped_data = request.form.get("cropped_image")
         image_file = request.files.get("image")
 
-        if cropped_data:
-            # Save cropped base64 image
-            filename = f"{uuid4().hex}.webp"
-            save_path = os.path.join(upload_folder, filename)
+        try:
+            # If cropped image (base64 from cropper)
+            if cropped_data:
+                upload_result = cloudinary.uploader.upload(
+                    cropped_data,
+                    folder="bbp/animals",
+                    public_id=f"animal_{uuid4().hex}"
+                )
+                image_url = upload_result["secure_url"]
 
-            process_and_overwrite_cropped_image(
-                cropped_data,
-                save_path
-            )
+            # If normal file upload
+            elif image_file and image_file.filename != "":
+                upload_result = cloudinary.uploader.upload(
+                    image_file,
+                    folder="bbp/animals",
+                    public_id=f"animal_{uuid4().hex}"
+                )
+                image_url = upload_result["secure_url"]
 
-            new_animal.image = filename
+        except Exception as e:
+            print("Cloudinary Upload Error:", e)
+            flash("Image upload failed.", "danger")
+            return redirect(url_for("admin_animals"))
 
-        elif image_file and image_file.filename != "":
-            # Normal upload
-            filename = process_and_save_image(
-                image_file,
-                upload_folder
-            )
-
-            new_animal.image = filename
-        # ===================================================
+        new_animal.image = image_url
+        # ===============================================================
 
         db.session.add(new_animal)
         db.session.commit()
-        log_action(
-    section="animal",
-    action="create",
-    target_type="animal",
-    target_id=new_animal.id,
-    description=f"Added animal: {new_animal.common_name}"
-)
 
+        log_action(
+            section="animal",
+            action="create",
+            target_type="animal",
+            target_id=new_animal.id,
+            description=f"Added animal: {new_animal.common_name}"
+        )
 
         flash("Animal added successfully.", "success")
         return redirect(url_for("admin_animals"))
@@ -1408,7 +1408,6 @@ def admin_animals():
         conservation_statuses=CONSERVATION_STATUSES,
         habitats=HABITATS
     )
-
 
 
 
