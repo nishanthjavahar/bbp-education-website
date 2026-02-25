@@ -229,7 +229,7 @@ class Animal(db.Model):
     habitat = db.Column(db.String(150), nullable=False)
     conservation_status = db.Column(db.String(50), nullable=False)
     description = db.Column(db.Text, nullable=False)
-    image = db.Column(db.String(100))
+    image = db.Column(db.String(500))
 class Admin(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True, nullable=False)
