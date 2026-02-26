@@ -27,6 +27,7 @@
         Dashboard
     </a>
 </div>
+
 <link rel="stylesheet"
 href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"/>
 
@@ -46,9 +47,10 @@ href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"/>
 
                     <label>Event Title</label>
                     <input type="text" name="title" required>
+
                     <label>Event Icon (Small image)</label>
-<input type="file" name="icon" accept=".jpg,.jpeg,.png">
-<small>Recommended size: 50x50 px</small>
+                    <input type="file" name="icon" accept=".jpg,.jpeg,.png">
+                    <small>Recommended size: 50x50 px</small>
 
                     <label>Description</label>
                     <textarea name="description" rows="4" required></textarea>
@@ -60,13 +62,13 @@ href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"/>
                         First selected image will be used as Cover Image.
                     </p>
 
+                    <!-- CHANGED name="images" ➜ name="gallery_images" -->
                     <input type="file"
-                           name="images"
+                           name="gallery_images"
                            id="imageInput"
                            multiple
                            accept=".jpg,.jpeg,.png">
 
-                    <!-- Hidden cropped base64 -->
                     <input type="hidden"
                            name="cropped_images"
                            id="croppedImages">
@@ -99,41 +101,46 @@ href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"/>
         {% for event in events %}
         <div class="event-admin-item">
 
-    <!-- LEFT SIDE -->
-    <div class="event-admin-left">
+            <!-- LEFT SIDE -->
+            <div class="event-admin-left">
 
-        <h4 class="event-title">{{ event.title }}</h4>
+                <h4 class="event-title">{{ event.title }}</h4>
 
-        <p class="event-date">
-            {{ event.event_date.strftime('%d %B %Y') }}
-        </p>
+                <p class="event-date">
+                    {{ event.event_date.strftime('%d %B %Y') }}
+                </p>
 
-        <div class="event-actions">
-            <a href="{{ url_for('edit_event', event_id=event.id) }}"
-               class="btn-edit">
-                Edit
-            </a>
+                <div class="event-actions">
+                    <a href="{{ url_for('edit_event', event_id=event.id) }}"
+                       class="btn-edit">
+                        Edit
+                    </a>
 
-            <form method="POST"
-                  action="{{ url_for('delete_event', event_id=event.id) }}"
-                  onsubmit="return confirm('Are you sure you want to delete this event?');"
-                  style="display:inline;">
-                <button type="submit" class="btn-delete">
-                    Delete
-                </button>
-            </form>
-        </div>
+                    <form method="POST"
+                          action="{{ url_for('delete_event', event_id=event.id) }}"
+                          onsubmit="return confirm('Are you sure you want to delete this event?');"
+                          style="display:inline;">
+                        <button type="submit" class="btn-delete">
+                            Delete
+                        </button>
+                    </form>
+                </div>
 
-    </div>
+            </div>
 
-    <!-- RIGHT SIDE -->
-    <div class="event-admin-images">
-        {% for img in event.images %}
-            <img src="{{ url_for('static', filename='images/events/' ~ img.filename) }}">
-        {% endfor %}
-    </div>
+            <!-- RIGHT SIDE -->
+            <div class="event-admin-images">
 
-</div>
+                <!-- CHANGED STATIC TO CLOUDINARY -->
+                {% if event.cover_image %}
+                    <img src="{{ event.cover_image }}">
+                {% endif %}
+
+                {% for img in event.images %}
+                    <img src="{{ img.filename }}">
+                {% endfor %}
+
+            </div>
 
         </div>
         {% else %}
@@ -143,6 +150,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"/>
     </div>
 
 </div>
+
 
 <!-- ================= CROP MODAL ================= -->
 

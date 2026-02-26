@@ -21,9 +21,10 @@
 
                     <label>Event Title</label>
                     <input type="text" name="title" value="{{ event.title }}" required>
+
                     <label>Event Icon (Small image)</label>
-<input type="file" name="icon" accept=".jpg,.jpeg,.png">
-<small>Recommended size: 50x50 px</small>
+                    <input type="file" name="icon" accept=".jpg,.jpeg,.png">
+                    <small>Recommended size: 50x50 px</small>
 
                     <label>Description</label>
                     <textarea name="description" rows="4" required>{{ event.description }}</textarea>
@@ -37,8 +38,9 @@
                         First selected image will be used as Cover Image.
                     </p>
 
+                    <!-- CHANGED name="images" ➜ name="gallery_images" -->
                     <input type="file"
-                           name="images"
+                           name="gallery_images"
                            id="imageInput"
                            multiple
                            accept=".jpg,.jpeg,.png">
@@ -57,10 +59,16 @@
                     <h4>Existing Images</h4>
                     <div class="preview-grid">
 
+                        <!-- CHANGED STATIC TO CLOUDINARY -->
+                        {% if event.cover_image %}
+                        <div class="preview-box">
+                            <img src="{{ event.cover_image }}">
+                        </div>
+                        {% endif %}
+
                         {% for img in event.images %}
                         <div class="preview-box">
-                            <img src="{{ url_for('static', filename='images/events/' ~ img.filename) }}"
-                                 onclick="openPreview(this.src)">
+                            <img src="{{ img.filename }}">
                         </div>
                         {% endfor %}
 
@@ -78,6 +86,7 @@
     </div>
 
 </div>
+
 
 <!-- CROP MODAL -->
 <div id="cropModal" style="
