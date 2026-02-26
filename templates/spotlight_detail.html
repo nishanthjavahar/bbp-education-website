@@ -25,8 +25,8 @@
             gap:25px;
         ">
             {% for image in event.images %}
-                <img src="{{ url_for('static', filename='images/events/' ~ image.filename) }}"
-                     class="gallery-img"
+                <img src="{{ img.filename }}"                    
+                    class="gallery-img"
                      onclick="openLightbox({{ loop.index0 }})"
                      style="
                         width:100%;
