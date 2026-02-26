@@ -176,7 +176,7 @@ class Event(db.Model):
     title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=False)
     event_date = db.Column(db.Date, nullable=False)
-    cover_image = db.Column(db.String(200))   # 👈 ADD THIS
+    cover_image = db.Column(db.String(500))   # 👈 ADD THIS
     image = db.Column(db.String(500))
     icon = db.Column(db.String(255), nullable=True)
 
@@ -184,7 +184,7 @@ class EventImage(db.Model):
     __tablename__ = "event_image"
 
     id = db.Column(db.Integer, primary_key=True)
-    filename = db.Column(db.String(200), nullable=False)
+    filename = db.Column(db.String(500), nullable=False)
 
     event_id = db.Column(
         db.Integer,
