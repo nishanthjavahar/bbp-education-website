@@ -828,7 +828,7 @@ def delete_user(user_id):
 # ADMIN EVENTS
 # =========================
 # =========================
-# ADMIN EVENTS
+# ADMIN EVENTS (CLOUDINARY VERSION)
 # =========================
 @app.route("/admin/events", methods=["GET", "POST"])
 @admin_required
@@ -847,17 +847,18 @@ def admin_events():
         )
 
         db.session.add(new_event)
-        db.session.commit()  # commit first to generate event.id
+        db.session.flush()  # get event.id without full commit
 
         # ================= ICON UPLOAD =================
         icon_file = request.files.get("icon")
 
         if icon_file and icon_file.filename != "":
-            icon_name = process_and_save_image(
+            upload_result = cloudinary.uploader.upload(
                 icon_file,
-                os.path.join(app.static_folder, "images", "events")
+                folder="bbp/events/icons",
+                public_id=f"icon_{uuid4().hex}"
             )
-            new_event.icon = icon_name
+            new_event.icon = upload_result["secure_url"]
 
         # ================= GALLERY IMAGES =================
         files = request.files.getlist("gallery_images")
@@ -866,13 +867,16 @@ def admin_events():
 
         for file in files:
             if file and file.filename != "":
-                image_name = process_and_save_image(
+                upload_result = cloudinary.uploader.upload(
                     file,
-                    os.path.join(app.static_folder, "images", "events")
+                    folder="bbp/events/gallery",
+                    public_id=f"event_{uuid4().hex}"
                 )
 
+                image_url = upload_result["secure_url"]
+
                 event_image = EventImage(
-                    filename=image_name,
+                    filename=image_url,  # now storing full Cloudinary URL
                     event_id=new_event.id
                 )
 
@@ -880,18 +884,18 @@ def admin_events():
 
                 # First image becomes cover
                 if not first_image_saved:
-                    new_event.cover_image = image_name
+                    new_event.cover_image = image_url
                     first_image_saved = True
 
         db.session.commit()
-        log_action(
-    section="event",
-    action="create",
-    target_type="event",
-    target_id=new_event.id,
-    description=f"Created event: {new_event.title}"
-)
 
+        log_action(
+            section="event",
+            action="create",
+            target_type="event",
+            target_id=new_event.id,
+            description=f"Created event: {new_event.title}"
+        )
 
         flash("Event added successfully.", "success")
         return redirect(url_for("admin_events"))
@@ -902,7 +906,6 @@ def admin_events():
         "admin_events.html",
         events=events
     )
-
 
 @app.route("/admin/events/edit/<int:event_id>", methods=["GET", "POST"])
 @admin_required
