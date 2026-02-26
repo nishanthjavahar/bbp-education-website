@@ -4302,6 +4302,17 @@ def admin_download_certificate(intern_id):
         abort(404)
 
     return send_file(certificate_path, as_attachment=True)
+@app.route("/intern/certificate/download")
+def intern_download_certificate():
+
+    # Make sure intern is logged in
+    if session.get("role") != "intern":
+        return redirect(url_for("intern_login"))
+
+    intern_id = session.get("user_id")
+
+    # Reuse same logic as admin route
+    return admin_download_certificate(intern_id)
 
 @app.route("/intern/request-certificate", methods=["POST"])
 def request_certificate():
