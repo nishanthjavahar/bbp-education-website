@@ -1463,19 +1463,9 @@ def gallery():
     images = Gallery.query.order_by(Gallery.id.desc()).all()
     return render_template("gallery.html", images=images)
 
-from utils.image_processor import process_and_save_base64_image
-
 @app.route("/admin/gallery", methods=["GET", "POST"])
 @admin_required
 def admin_gallery():
-
-    upload_folder = os.path.join(
-        app.root_path,
-        "static",
-        "uploads",
-        "gallery"
-    )
-    os.makedirs(upload_folder, exist_ok=True)
 
     if request.method == "POST":
 
@@ -1489,12 +1479,15 @@ def admin_gallery():
 
         for base64_data in images:
             try:
-                filename = process_and_save_base64_image(
+                upload_result = cloudinary.uploader.upload(
                     base64_data,
-                    upload_folder
+                    folder="bbp/gallery",
+                    public_id=f"gallery_{uuid4().hex}"
                 )
 
-                new_image = Gallery(image=filename)
+                image_url = upload_result["secure_url"]
+
+                new_image = Gallery(image=image_url)
                 db.session.add(new_image)
                 saved_count += 1
 
@@ -1505,26 +1498,18 @@ def admin_gallery():
             db.session.commit()
 
             log_action(
-        section="gallery",
-        action="create",
-        target_type="image",
-        description=f"Uploaded {saved_count} gallery image(s)"
-    )
+                section="gallery",
+                action="create",
+                target_type="image",
+                description=f"Uploaded {saved_count} gallery image(s)"
+            )
 
             return {"success": True}
-
 
         return {"success": False}
 
     images = Gallery.query.order_by(Gallery.id.desc()).all()
     return render_template("admin_gallery.html", images=images)
-
-
-
-
-
-
-
 
 @app.route("/admin/gallery/delete/<int:image_id>", methods=["POST"])
 @admin_required
@@ -1532,38 +1517,19 @@ def delete_gallery_image(image_id):
 
     image = Gallery.query.get_or_404(image_id)
 
-    # Delete file from disk
-    if image.image:
-        image_path = os.path.join(
-            app.root_path,
-            "static",
-            "uploads",
-            "gallery",
-            image.image
-        )
+    log_action(
+        section="gallery",
+        action="delete",
+        target_type="image",
+        target_id=image.id,
+        description=f"Deleted gallery image"
+    )
 
-        if os.path.exists(image_path):
-            os.remove(image_path)
-
-    # Delete DB record
     db.session.delete(image)
     db.session.commit()
-    log_action(
-    section="gallery",
-    action="delete",
-    target_type="image",
-    target_id=image.id,
-    description=f"Deleted gallery image: {image.image}"
-)
-
 
     flash("Image deleted successfully.", "success")
     return redirect(url_for("admin_gallery"))
-
-
-
-
-
 
 @app.route("/admin/gallery/edit/<int:image_id>", methods=["GET", "POST"])
 @admin_required
@@ -1571,30 +1537,26 @@ def edit_gallery_image(image_id):
 
     image = Gallery.query.get_or_404(image_id)
 
-    # ---------- GET: return image URL ----------
+    # ---------- GET ----------
     if request.method == "GET":
         return {
-            "image_url": url_for(
-                "static",
-                filename=f"uploads/gallery/{image.image}"
-            )
+            "image_url": image.image
         }
 
-    # ---------- POST: save cropped image ----------
+    # ---------- POST ----------
     data = request.get_json()
     base64_data = data.get("image")
 
     if base64_data:
 
-        path = os.path.join(
-            app.root_path,
-            "static",
-            "uploads",
-            "gallery",
-            image.image
+        upload_result = cloudinary.uploader.upload(
+            base64_data,
+            folder="bbp/gallery",
+            public_id=f"gallery_{uuid4().hex}"
         )
 
-        process_and_overwrite_cropped_image(base64_data, path)
+        image.image = upload_result["secure_url"]
+        db.session.commit()
 
         return {"success": True}
 
