@@ -25,20 +25,20 @@
             gap:25px;
         ">
             {% for image in event.images %}
-                <img src="{{ img.filename }}"                    
-                    class="gallery-img"
-                     onclick="openLightbox({{ loop.index0 }})"
-                     style="
-                        width:100%;
-                        height:220px;
-                        object-fit:cover;
-                        border-radius:12px;
-                        cursor:pointer;
-                        transition:0.3s;
-                     "
-                     onmouseover="this.style.transform='scale(1.04)'"
-                     onmouseout="this.style.transform='scale(1)'">
-            {% endfor %}
+    <img src="{{ image.filename }}"
+         class="gallery-img"
+         onclick="openLightbox({{ loop.index0 }})"
+         style="
+            width:100%;
+            height:220px;
+            object-fit:cover;
+            border-radius:12px;
+            cursor:pointer;
+            transition:0.3s;
+         "
+         onmouseover="this.style.transform='scale(1.04)'"
+         onmouseout="this.style.transform='scale(1)'">
+{% endfor %}
         </div>
 
         <!-- BACK BUTTON -->
