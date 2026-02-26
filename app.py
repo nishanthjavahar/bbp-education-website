@@ -449,7 +449,7 @@ def contact():
 import os
 
 @app.route("/gallery")
-def gallery():
+def public_gallery():
 
     images = Gallery.query.order_by(Gallery.id.desc()).all()
 
