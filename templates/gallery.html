@@ -31,7 +31,7 @@
     {% for img in images %}
         <img class="gallery-img"
              onclick="openModal({{ loop.index0 }})"
-             src="{{ url_for('static', filename='uploads/gallery/' ~ img.image) }}"
+             src="{{ img.image }}"
              alt="Gallery Image">
     {% else %}
         <p style="text-align:center;">No images available.</p>
