@@ -23,7 +23,7 @@ style="width:100%;padding:10px;margin-bottom:15px;">
 {% if program.image %}
 <div style="margin-bottom:20px;">
 <strong>Current Image:</strong><br>
-<img src="{{ url_for('static', filename='uploads/programs/' ~ program.image) }}"
+<img src="{{ program.image }}">
 style="max-width:350px;border-radius:10px;">
 </div>
 {% endif %}

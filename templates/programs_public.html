@@ -54,8 +54,8 @@
                 overflow:hidden;
                 border-radius:22px 0 0 22px;
             ">
-                <img src="{{ url_for('static', filename='uploads/programs/' ~ program.image) }}"
-                     onclick="openImage(this.src)"
+                    <img src="{{ program.image }}"
+                    onclick="openImage(this.src)"
                      style="
                         width:100%;
                         height:100%;

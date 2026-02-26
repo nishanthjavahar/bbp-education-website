@@ -1042,7 +1042,10 @@ import time
 # =========================
 # ADMIN PROGRAMS
 # =========================
-
+import cloudinary
+import cloudinary.uploader
+from uuid import uuid4
+from datetime import datetime, date
 @app.route("/admin/programs", methods=["GET", "POST"])
 @admin_required
 def admin_programs():
@@ -1050,37 +1053,30 @@ def admin_programs():
     today = date.today()
     view = request.args.get("view")
 
-    upload_folder = os.path.join(
-        app.root_path,
-        "static",
-        "uploads",
-        "programs"
-    )
-    os.makedirs(upload_folder, exist_ok=True)
-
     if request.method == "POST":
 
         image_file = request.files.get("image")
         cropped_data = request.form.get("cropped_image")
 
-        filename = None
+        image_url = None
 
         # ================= PRIORITY 1: CROPPED IMAGE =================
         if cropped_data and cropped_data.strip() != "":
-            filename = f"{uuid4().hex}.webp"
-            save_path = os.path.join(upload_folder, filename)
-
-            process_and_overwrite_cropped_image(
+            upload_result = cloudinary.uploader.upload(
                 cropped_data,
-                save_path
+                folder="bbp/programs",
+                public_id=f"program_{uuid4().hex}"
             )
+            image_url = upload_result["secure_url"]
 
         # ================= PRIORITY 2: NORMAL IMAGE =================
         elif image_file and image_file.filename != "":
-            filename = process_and_save_image(
+            upload_result = cloudinary.uploader.upload(
                 image_file,
-                upload_folder
+                folder="bbp/programs",
+                public_id=f"program_{uuid4().hex}"
             )
+            image_url = upload_result["secure_url"]
 
         # ================= TARGET AUDIENCE =================
         selected_audience = request.form.getlist("target_audience")
@@ -1095,7 +1091,7 @@ def admin_programs():
 
         audience_string = ",".join(selected_audience)
 
-        # ================= DATE =================
+        # ================= DATE & TIME =================
         parsed_event_date = datetime.strptime(
             request.form["event_date"],
             "%Y-%m-%d"
@@ -1121,25 +1117,24 @@ def admin_programs():
             start_time=parsed_start_time,
             end_time=parsed_end_time,
             category="awareness",
-            image=filename
+            image=image_url
         )
 
         db.session.add(new_program)
         db.session.commit()
-        log_action(
-    section="program",
-    action="create",
-    target_type="program",
-    target_id=new_program.id,
-    description=f"Created program: {new_program.name}"
-)
 
+        log_action(
+            section="program",
+            action="create",
+            target_type="program",
+            target_id=new_program.id,
+            description=f"Created program: {new_program.name}"
+        )
 
         flash("Program added successfully.", "success")
         return redirect(url_for("admin_programs"))
 
     # ================= FILTER =================
-
     now = datetime.now()
     today = now.date()
     current_time = now.time()
@@ -1165,24 +1160,122 @@ def admin_programs():
         "admin_programs.html",
         programs=programs,
         view=view
-    ) 
+    )@app.route("/admin/programs", methods=["GET", "POST"])
+@admin_required
+def admin_programs():
 
+    today = date.today()
+    view = request.args.get("view")
 
+    if request.method == "POST":
 
+        image_file = request.files.get("image")
+        cropped_data = request.form.get("cropped_image")
 
+        image_url = None
 
+        # ================= PRIORITY 1: CROPPED IMAGE =================
+        if cropped_data and cropped_data.strip() != "":
+            upload_result = cloudinary.uploader.upload(
+                cropped_data,
+                folder="bbp/programs",
+                public_id=f"program_{uuid4().hex}"
+            )
+            image_url = upload_result["secure_url"]
 
+        # ================= PRIORITY 2: NORMAL IMAGE =================
+        elif image_file and image_file.filename != "":
+            upload_result = cloudinary.uploader.upload(
+                image_file,
+                folder="bbp/programs",
+                public_id=f"program_{uuid4().hex}"
+            )
+            image_url = upload_result["secure_url"]
 
+        # ================= TARGET AUDIENCE =================
+        selected_audience = request.form.getlist("target_audience")
+        other = request.form.get("other_audience")
 
+        if other and other.strip():
+            selected_audience.append(other.strip())
 
+        if not selected_audience:
+            flash("Please select at least one target audience.", "danger")
+            return redirect(url_for("admin_programs"))
 
-# =========================
-# EDIT PROGRAM
-# =========================
-from werkzeug.utils import secure_filename
-import os
-from datetime import datetime
+        audience_string = ",".join(selected_audience)
 
+        # ================= DATE & TIME =================
+        parsed_event_date = datetime.strptime(
+            request.form["event_date"],
+            "%Y-%m-%d"
+        ).date()
+
+        parsed_start_time = datetime.strptime(
+            request.form["start_time"],
+            "%H:%M"
+        ).time()
+
+        parsed_end_time = datetime.strptime(
+            request.form["end_time"],
+            "%H:%M"
+        ).time()
+
+        # ================= SAVE PROGRAM =================
+        new_program = Program(
+            name=request.form["name"],
+            description=request.form["description"],
+            target_audience=audience_string,
+            location=request.form["location"],
+            event_date=parsed_event_date,
+            start_time=parsed_start_time,
+            end_time=parsed_end_time,
+            category="awareness",
+            image=image_url
+        )
+
+        db.session.add(new_program)
+        db.session.commit()
+
+        log_action(
+            section="program",
+            action="create",
+            target_type="program",
+            target_id=new_program.id,
+            description=f"Created program: {new_program.name}"
+        )
+
+        flash("Program added successfully.", "success")
+        return redirect(url_for("admin_programs"))
+
+    # ================= FILTER =================
+    now = datetime.now()
+    today = now.date()
+    current_time = now.time()
+
+    if view == "past":
+        programs = Program.query.filter(
+            (Program.event_date < today) |
+            (
+                (Program.event_date == today) &
+                (Program.end_time < current_time)
+            )
+        ).order_by(Program.event_date.desc()).all()
+    else:
+        programs = Program.query.filter(
+            (Program.event_date > today) |
+            (
+                (Program.event_date == today) &
+                (Program.end_time >= current_time)
+            )
+        ).order_by(Program.event_date.asc()).all()
+
+    return render_template(
+        "admin_programs.html",
+        programs=programs,
+        view=view
+    )
+    
 @app.route("/admin/programs/edit/<int:program_id>", methods=["GET", "POST"])
 @admin_required
 def edit_program(program_id):
@@ -1220,49 +1313,37 @@ def edit_program(program_id):
 
         program.target_audience = ",".join(selected_audience)
 
-        upload_folder = os.path.join(
-            app.root_path,
-            "static",
-            "uploads",
-            "programs"
-        )
-
-        os.makedirs(upload_folder, exist_ok=True)
-
-        # ================= CASE 1: NEW FILE UPLOADED =================
+        # ================= IMAGE UPDATE =================
         image_file = request.files.get("image")
-
-        if image_file and image_file.filename != "":
-            filename = process_and_save_image(
-                image_file,
-                upload_folder
-            )
-            program.image = filename
-
-        # ================= CASE 2: CROPPED IMAGE =================
         cropped_data = request.form.get("cropped_image")
 
-        if cropped_data and program.image:
-
-            existing_path = os.path.join(
-                upload_folder,
-                program.image
+        # NEW FILE UPLOADED
+        if image_file and image_file.filename != "":
+            upload_result = cloudinary.uploader.upload(
+                image_file,
+                folder="bbp/programs",
+                public_id=f"program_{uuid4().hex}"
             )
+            program.image = upload_result["secure_url"]
 
-            process_and_overwrite_cropped_image(
+        # CROPPED IMAGE
+        elif cropped_data and cropped_data.strip() != "":
+            upload_result = cloudinary.uploader.upload(
                 cropped_data,
-                existing_path
+                folder="bbp/programs",
+                public_id=f"program_{uuid4().hex}"
             )
+            program.image = upload_result["secure_url"]
 
         db.session.commit()
-        log_action(
-    section="program",
-    action="update",
-    target_type="program",
-    target_id=program.id,
-    description=f"Updated program: {program.name}"
-)
 
+        log_action(
+            section="program",
+            action="update",
+            target_type="program",
+            target_id=program.id,
+            description=f"Updated program: {program.name}"
+        )
 
         flash("Program updated successfully.", "success")
         return redirect(url_for("admin_programs"))
@@ -1271,59 +1352,32 @@ def edit_program(program_id):
         "edit_program.html",
         program=program
     )
-
-
-
-
-
-
-
+    
 @app.route("/admin/programs/delete/<int:program_id>", methods=["POST"])
 @admin_required
 def delete_program(program_id):
 
     program = Program.query.get_or_404(program_id)
-
-    import os
-
-    # ================= STORE NAME FOR LOGGING =================
     program_name = program.name
-
-    # ================= DELETE IMAGE FILE =================
-    if program.image:
-        image_path = os.path.join(
-            app.root_path,
-            "static",
-            "uploads",
-            "programs",
-            program.image
-        )
-
-        if os.path.exists(image_path):
-            os.remove(image_path)
 
     # ================= LOG BEFORE DELETE =================
     log_action(
-    section="program",
-    action="delete",
-    target_type="program",
-    target_id=program_id,
-    description=f"Deleted program: {program_name}"
-)
+        section="program",
+        action="delete",
+        target_type="program",
+        target_id=program_id,
+        description=f"Deleted program: {program_name}"
+    )
 
-
-    # ================= DELETE FROM DATABASE =================
     try:
         db.session.delete(program)
         db.session.commit()
     except:
         db.session.rollback()
         flash("Error deleting program.", "danger")
-
-
+        return redirect(url_for("admin_programs"))
 
     flash("Program deleted successfully.", "success")
-
     return redirect(url_for("admin_programs"))
 
 
