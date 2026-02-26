@@ -1403,7 +1403,10 @@ def admin_animals():
 
 
 
-
+@app.route("/gallery")
+def gallery():
+    images = Gallery.query.order_by(Gallery.id.desc()).all()
+    return render_template("gallery.html", images=images)
 
 from utils.image_processor import process_and_save_base64_image
 
