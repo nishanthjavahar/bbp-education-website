@@ -1185,6 +1185,7 @@ def admin_programs():
 
         # ================= PRIORITY 2: NORMAL IMAGE =================
         elif image_file and image_file.filename != "":
+            print("CLOUDINARY PROGRAM UPLOAD CALLED")
             upload_result = cloudinary.uploader.upload(
                 image_file,
                 folder="bbp/programs",
