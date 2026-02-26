@@ -921,59 +921,51 @@ def edit_event(event_id):
             request.form["event_date"], "%Y-%m-%d"
         )
 
-        # ================= ICON UPDATE (WEBP LOGIC) =================
+        # ================= ICON UPDATE (CLOUDINARY) =================
         icon_file = request.files.get("icon")
 
         if icon_file and icon_file.filename != "":
-            icon_name = process_and_save_image(
+            upload_result = cloudinary.uploader.upload(
                 icon_file,
-                os.path.join(app.static_folder, "images", "events")
+                folder="bbp/events/icons",
+                public_id=f"icon_{uuid4().hex}"
             )
-            event.icon = icon_name
+            event.icon = upload_result["secure_url"]
 
-        # ================= COVER IMAGE CROP OVERWRITE =================
-
-        
-
-        # ================= NEW GALLERY IMAGES =================
+        # ================= NEW GALLERY IMAGES (CLOUDINARY) =================
         images = request.files.getlist("gallery_images")
-
-        upload_folder = os.path.join(
-            app.static_folder,
-            "images",
-            "events"
-        )
-
-        os.makedirs(upload_folder, exist_ok=True)
 
         for file in images:
             if file and file.filename != "":
 
-                image_name = process_and_save_image(
+                upload_result = cloudinary.uploader.upload(
                     file,
-                    upload_folder
+                    folder="bbp/events/gallery",
+                    public_id=f"event_{uuid4().hex}"
                 )
 
+                image_url = upload_result["secure_url"]
+
                 event_image = EventImage(
-                    filename=image_name,
+                    filename=image_url,
                     event_id=event.id
                 )
 
                 db.session.add(event_image)
 
-                # Set first uploaded image as cover if none exists
+                # If no cover exists, set first as cover
                 if not event.cover_image:
-                    event.cover_image = image_name
+                    event.cover_image = image_url
 
         db.session.commit()
-        log_action(
-    section="event",
-    action="update",
-    target_type="event",
-    target_id=event.id,
-    description=f"Updated event: {event.title}"
-)
 
+        log_action(
+            section="event",
+            action="update",
+            target_type="event",
+            target_id=event.id,
+            description=f"Updated event: {event.title}"
+        )
 
         flash("Event updated successfully.", "success")
         return redirect(url_for("admin_events"))
@@ -995,9 +987,6 @@ def delete_event(event_id):
 
     # Delete associated images
     for img in event.images:
-        image_path = os.path.join("static/images/events", img.filename)
-        if os.path.exists(image_path):
-            os.remove(image_path)
         db.session.delete(img)
 
     db.session.delete(event)
