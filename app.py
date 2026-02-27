@@ -32,6 +32,7 @@ from flask import request, session
 import cloudinary
 import cloudinary.uploader
 import os
+from datetime import datetime, timezone
 import cloudinary
 import cloudinary.uploader
 from io import BytesIO
@@ -455,7 +456,20 @@ def public_gallery():
 
     return render_template("gallery.html", images=images)
 
+from datetime import timezone
+import pytz
 
+@app.template_filter('ist')
+def convert_to_ist(value):
+    if value is None:
+        return ""
+
+    ist = pytz.timezone("Asia/Kolkata")
+
+    if value.tzinfo is None:
+        value = value.replace(tzinfo=timezone.utc)
+
+    return value.astimezone(ist).strftime("%d %b %Y, %I:%M %p")
 
 
 
@@ -490,6 +504,7 @@ def spotlight_detail(event_id):
 
 
 
+from datetime import datetime, timezone
 
 
 from datetime import datetime
@@ -497,7 +512,8 @@ from datetime import datetime
 @app.route("/education-programs")
 def education_programs():
 
-    now = datetime.now()
+    now = datetime.now(timezone.utc)
+
     today = now.date()
     current_time = now.time()
 
@@ -1135,7 +1151,8 @@ def admin_programs():
         return redirect(url_for("admin_programs"))
 
     # ================= FILTER =================
-    now = datetime.now()
+    now = datetime.now(timezone.utc)
+
     today = now.date()
     current_time = now.time()
 
@@ -1918,7 +1935,8 @@ from datetime import datetime
 @app.route("/programs_public")
 def programs_public():
 
-    now = datetime.now()
+    now = datetime.now(timezone.utc)
+
     today = now.date()
     current_time = now.time()
 
@@ -2317,7 +2335,7 @@ def backup_full_system():
         return redirect(url_for("admin_backup"))
 
     # Create timestamp filename
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
     backup_filename = f"site_backup_{timestamp}.db"
     backup_path = os.path.join("backups", backup_filename)
 
@@ -2954,7 +2972,8 @@ def intern_login_today():
     new_log = InternDailyLog(
         intern_id=user_id,
         date=today,
-        login_time=datetime.now()
+        login_time=datetime.now(timezone.utc)
+
     )
 
     db.session.add(new_log)
@@ -3867,7 +3886,7 @@ def generate_certificate(intern, profile):
     # ================= SAFE CERTIFICATE ID =================
     if not profile.certificate_id:
 
-        current_year = datetime.now().year
+        current_year = datetime.now(timezone.utc).year
 
     # Get highest serial issued this year
         last_serial = db.session.query(
@@ -4249,7 +4268,8 @@ def complete_internship(intern_id):
     profile.is_completed = True
     profile.certificate_file = certificate_filename
     profile.report_upload_enabled = False
-    profile.completion_date = datetime.now()
+    profile.completion_date = datetime.now(timezone.utc)
+
 
     db.session.commit()
 

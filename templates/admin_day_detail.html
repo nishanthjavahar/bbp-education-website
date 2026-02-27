@@ -9,7 +9,7 @@
     <hr>
 
     <p><strong>Login Time:</strong>
-        {{ log.login_time.strftime('%H:%M:%S') if log.login_time else 'N/A' }}
+        {{ log.login_time |ist.strftime('%H:%M:%S') if log.login_time else 'N/A' }}
     </p>
 
     <p><strong>Logout Time:</strong>

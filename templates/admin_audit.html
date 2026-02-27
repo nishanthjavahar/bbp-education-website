@@ -133,7 +133,7 @@
                     {% for log in logs.items %}
                     <tr style="border-top:1px solid #eee;">
                         <td style="padding:12px;">
-                            {{ log.timestamp.strftime("%d %b %Y %H:%M") }}
+                            {{log.timestamp | ist.strftime("%d %b %Y %H:%M") }}
                         </td>
                         <td style="padding:12px;">
                             {{ log.section }}
