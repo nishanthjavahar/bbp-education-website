@@ -7,7 +7,7 @@
     <h2>Today's Work</h2>
 
     <p><strong>Date:</strong> {{ log.date.strftime('%d-%m-%Y') }}</p>
-    <p><strong>Login Time:</strong> {{ log.login_time|ist.strftime('%I:%M %p') }}</p>
+    <p><strong>Login Time:</strong> {{ log.login_time | ist }}</p>
 
     {% if log.logout_time %}
         <p><strong>Logout Time:</strong> {{ log.logout_time.strftime('%I:%M %p') }}</p>

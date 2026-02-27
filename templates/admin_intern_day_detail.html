@@ -34,7 +34,7 @@
 
         <div style="background:#f5f5f5; padding:15px; border-radius:6px; flex:1;">
             <strong>Login Time</strong><br>
-            {{ log.login_time|ist.strftime('%I:%M %p') if log.login_time else "N/A" }}
+            {{ log.login_time | ist if log.login_time else "N/A" }}
         </div>
 
         <div style="background:#f5f5f5; padding:15px; border-radius:6px; flex:1;">
