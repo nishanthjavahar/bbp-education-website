@@ -443,7 +443,20 @@ def test_limit():
 from werkzeug.exceptions import RequestEntityTooLarge
 
 
+from flask_mail import Mail, Message
+import secrets
+from datetime import datetime, timedelta
+import os
 
+app.config.update(
+    MAIL_SERVER=os.getenv("MAIL_SERVER"),
+    MAIL_PORT=int(os.getenv("MAIL_PORT", 587)),
+    MAIL_USE_TLS=True,
+    MAIL_USERNAME=os.getenv("MAIL_USERNAME"),
+    MAIL_PASSWORD=os.getenv("MAIL_PASSWORD"),
+)
+
+mail = Mail(app)
 @app.route("/contact")
 def contact():
     return render_template("contact.html")
@@ -2613,63 +2626,94 @@ def intern_register():
 
 
 
+import secrets
+from datetime import datetime, timedelta
+from flask_mail import Message
+from flask import request, render_template, redirect, url_for, flash
 
 
+@app.route("/intern/forgot-password", methods=["GET", "POST"])
+def intern_forgot_password():
 
-@app.route("/forgot-password/<role>", methods=["GET", "POST"])
-def forgot_password(role):
     if request.method == "POST":
         email = request.form.get("email")
 
-        user = User.query.filter_by(email=email, role=role).first()
+        # Only search for INTERN role
+        user = User.query.filter_by(email=email, role="intern").first()
 
         if user:
-            token = str(uuid.uuid4())
+            # Generate secure token
+            token = secrets.token_urlsafe(32)
+
+            # Store token + expiry
             user.reset_token = token
+            user.reset_token_expiry = datetime.utcnow() + timedelta(minutes=30)
             db.session.commit()
 
-            reset_url = url_for(
-                "reset_password",
-                role=role,
+            # Generate full external reset link
+            reset_link = url_for(
+                "intern_reset_password",
                 token=token,
                 _external=True
             )
 
-            print("Reset Link:", reset_url)
+            # Create email
+            msg = Message(
+                subject="Intern Password Reset - BBP Education",
+                sender=f"BBP Education <{app.config['MAIL_USERNAME']}>",
+                recipients=[email]
+            )
 
-            flash("Reset link generated. Check console.")
+            msg.body = f"""
+Hello,
 
-        else:
-            flash("User not found.")
+We received a request to reset your password.
 
-    return render_template("forgot_password.html", role=role)
+Click the link below to set a new password:
+
+{reset_link}
+
+This link will expire in 30 minutes.
+
+If you did not request this reset, please ignore this email.
+
+Regards,
+BBP Education Team
+"""
+
+            mail.send(msg)
+
+        # Always show same message (security best practice)
+        flash("If the email exists, a reset link has been sent.", "info")
+        return redirect(url_for("intern_login"))
+
+    return render_template("intern_forgot_password.html")
 
 
 
 
-@app.route("/reset-password/<role>/<token>", methods=["GET", "POST"])
-def reset_password(role, token):
+@app.route("/intern/reset-password/<token>", methods=["GET", "POST"])
+def intern_reset_password(token):
 
-    user = User.query.filter_by(reset_token=token, role=role).first()
+    user = User.query.filter_by(reset_token=token).first()
 
-    if not user:
-        flash("Invalid or expired token.")
-        return redirect(url_for("forgot_password", role=role))
+    if not user or user.reset_token_expiry < datetime.utcnow():
+        flash("Invalid or expired reset link.", "danger")
+        return redirect(url_for("intern_login"))
 
     if request.method == "POST":
-        new_password = request.form.get("password")
+        new_password = request.form["password"]
 
-        user.password_hash = generate_password_hash(
-    new_password,
-    method="pbkdf2:sha256"
-)
+        user.password_hash = generate_password_hash(new_password)
         user.reset_token = None
+        user.reset_token_expiry = None
+
         db.session.commit()
 
-        flash("Password reset successful.")
-        return redirect(url_for(f"{role}_login"))
+        flash("Password reset successful. Please login.", "success")
+        return redirect(url_for("intern_login"))
 
-    return render_template("reset_password.html", role=role)
+    return render_template("intern_reset_password.html")
 
 
 
