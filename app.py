@@ -262,6 +262,7 @@ class User(db.Model):
 )
 
     reset_token = db.Column(db.String(200), nullable=True)
+    reset_token_expiry = db.Column(db.DateTime, nullable=True)
 
 class InternProfile(db.Model):
     id = db.Column(db.Integer, primary_key=True)
