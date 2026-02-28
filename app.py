@@ -2681,7 +2681,7 @@ Regards,
 BBP Education Team
 """
 
-            mail.send(msg)
+            print("Reset link:", reset_link)
 
         # Always show same message (security best practice)
         flash("If the email exists, a reset link has been sent.", "info")
