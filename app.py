@@ -437,34 +437,24 @@ def home():
 
 
 # =========================
-# MAIL CONFIGURATION (PRODUCTION SAFE)
+# MAIL CONFIGURATION (SENDGRID - RENDER SAFE)
 # =========================
 
 from flask_mail import Mail, Message
 import os
 
-mail_username = os.getenv("MAIL_USERNAME")
-mail_password = os.getenv("MAIL_PASSWORD")
-mail_server = os.getenv("MAIL_SERVER", "smtp.gmail.com")
-mail_port = int(os.getenv("MAIL_PORT", 587))
-mail_use_tls = os.getenv("MAIL_USE_TLS", "True").lower() == "true"
-
-if mail_username and mail_password:
-    app.config.update(
-        MAIL_SERVER=mail_server,
-        MAIL_PORT=mail_port,
-        MAIL_USE_TLS=mail_use_tls,
-        MAIL_USERNAME=mail_username,
-        MAIL_PASSWORD=mail_password,
-    )
-
-    mail = Mail(app)
-    print("✅ Mail configured successfully")
-else:
-    mail = None
-    print("⚠️ Mail not configured — missing environment variables")
+app.config.update(
+    MAIL_SERVER="smtp.sendgrid.net",
+    MAIL_PORT=587,
+    MAIL_USE_TLS=True,
+    MAIL_USERNAME="apikey",  # must be literally this word
+    MAIL_PASSWORD=os.getenv("SENDGRID_API_KEY"),
+)
 
 mail = Mail(app)
+print("✅ SendGrid Mail Configured")
+
+
 @app.route("/contact")
 def contact():
     return render_template("contact.html")
