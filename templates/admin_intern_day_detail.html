@@ -39,7 +39,7 @@
 
         <div style="background:#f5f5f5; padding:15px; border-radius:6px; flex:1;">
             <strong>Logout Time</strong><br>
-            {{ log.logout_time.strftime('%I:%M %p') if log.logout_time else "Not logged out" }}
+            {{ log.logout_time | ist if log.logout_time else "Not logged out" }}
         </div>
 
     </div>
