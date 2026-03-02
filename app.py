@@ -436,25 +436,33 @@ def home():
     return render_template("index.html")
 
 
-@app.route("/test_limit", methods=["POST"])
-def test_limit():
-    print("MAX:", app.config['MAX_CONTENT_LENGTH'])
-    return "OK"
-from werkzeug.exceptions import RequestEntityTooLarge
-
+# =========================
+# MAIL CONFIGURATION (PRODUCTION SAFE)
+# =========================
 
 from flask_mail import Mail, Message
-import secrets
-from datetime import datetime, timedelta
 import os
 
-app.config.update(
-    MAIL_SERVER=os.getenv("MAIL_SERVER"),
-    MAIL_PORT=int(os.getenv("MAIL_PORT", 587)),
-    MAIL_USE_TLS=True,
-    MAIL_USERNAME=os.getenv("nishanthbbp@gmail.com"),
-    MAIL_PASSWORD=os.getenv("xmfmmburdoqiypkt"),
-)
+mail_username = os.getenv("MAIL_USERNAME")
+mail_password = os.getenv("MAIL_PASSWORD")
+mail_server = os.getenv("MAIL_SERVER", "smtp.gmail.com")
+mail_port = int(os.getenv("MAIL_PORT", 587))
+mail_use_tls = os.getenv("MAIL_USE_TLS", "True").lower() == "true"
+
+if mail_username and mail_password:
+    app.config.update(
+        MAIL_SERVER=mail_server,
+        MAIL_PORT=mail_port,
+        MAIL_USE_TLS=mail_use_tls,
+        MAIL_USERNAME=mail_username,
+        MAIL_PASSWORD=mail_password,
+    )
+
+    mail = Mail(app)
+    print("✅ Mail configured successfully")
+else:
+    mail = None
+    print("⚠️ Mail not configured — missing environment variables")
 
 mail = Mail(app)
 @app.route("/contact")
