@@ -2630,6 +2630,7 @@ import secrets
 from datetime import datetime, timedelta
 from flask_mail import Message
 from flask import request, render_template, redirect, url_for, flash
+from app import mail
 
 
 @app.route("/intern/forgot-password", methods=["GET", "POST"])
@@ -2642,29 +2643,30 @@ def intern_forgot_password():
         user = User.query.filter_by(email=email, role="intern").first()
 
         if user:
-            # Generate secure token
-            token = secrets.token_urlsafe(32)
+            try:
+                # Generate secure token
+                token = secrets.token_urlsafe(32)
 
-            # Store token + expiry
-            user.reset_token = token
-            user.reset_token_expiry = datetime.utcnow() + timedelta(minutes=30)
-            db.session.commit()
+                # Store token + expiry
+                user.reset_token = token
+                user.reset_token_expiry = datetime.utcnow() + timedelta(minutes=30)
+                db.session.commit()
 
-            # Generate full external reset link
-            reset_link = url_for(
-                "intern_reset_password",
-                token=token,
-                _external=True
-            )
+                # Generate full external reset link
+                reset_link = url_for(
+                    "intern_reset_password",
+                    token=token,
+                    _external=True
+                )
 
-            # Create email
-            msg = Message(
-                subject="Intern Password Reset - BBP Education",
-                sender=f"BBP Education <{app.config['MAIL_USERNAME']}>",
-                recipients=[email]
-            )
+                # Create email
+                msg = Message(
+                    subject="Intern Password Reset - BBP Education",
+                    sender=f"BBP Education <{app.config['MAIL_USERNAME']}>",
+                    recipients=[email]
+                )
 
-            msg.body = f"""
+                msg.body = f"""
 Hello,
 
 We received a request to reset your password.
@@ -2681,14 +2683,19 @@ Regards,
 BBP Education Team
 """
 
-            print("Reset link:", reset_link)
+                # 🔥 Send Email with Debug Output
+                mail.send(msg)
+                print("✅ MAIL SENT SUCCESSFULLY")
+                print("Reset link:", reset_link)
+
+            except Exception as e:
+                print("❌ MAIL ERROR:", e)
 
         # Always show same message (security best practice)
         flash("If the email exists, a reset link has been sent.", "info")
         return redirect(url_for("intern_login"))
 
     return render_template("intern_forgot_password.html")
-
 
 
 
