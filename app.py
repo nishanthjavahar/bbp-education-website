@@ -2790,7 +2790,21 @@ def intern_login():
     return render_template("intern_login.html")
 
 
+@app.route("/volunteer/forgot-password", methods=["GET", "POST"])
+def volunteer_forgot_password():
 
+    if request.method == "POST":
+        email = request.form.get("email")
+
+        user = User.query.filter_by(email=email, role="volunteer").first()
+
+        if user:
+            # send reset email logic here
+            flash("Password reset instructions sent.", "success")
+        else:
+            flash("Email not found.", "danger")
+
+    return render_template("volunteer_forgot_password.html")
 
 
 
