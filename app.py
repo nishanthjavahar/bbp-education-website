@@ -1332,30 +1332,7 @@ def reject_volunteer_spotlight(spotlight_id):
     return redirect(url_for("admin_volunteer_spotlights"))
 
  
-@app.route("/admin/spotlight/<int:spotlight_id>/reject", methods=["POST"])
-@admin_required
-def reject_volunteer_spotlight(spotlight_id):
 
-    spotlight = VolunteerSpotlight.query.get_or_404(spotlight_id)
-
-    spotlight.status = "Rejected"
-
-    log_action(
-        section="Volunteer Spotlight",
-        action="Reject",
-        target_type="VolunteerSpotlight",
-        target_id=spotlight.id,
-        description=f"Rejected spotlight '{spotlight.title}' submitted by {spotlight.volunteer.name}"
-    )
-
-    db.session.commit()
-
-    flash(
-        "Spotlight rejected.",
-        "warning"
-    )
-
-    return redirect(url_for("admin_volunteer_spotlights"))
 
 
 
