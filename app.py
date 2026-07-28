@@ -46,7 +46,6 @@ cloudinary.config(
 )
 import pillow_heif
 pillow_heif.register_heif_opener()
-
 pdfmetrics.registerFont(
     TTFont('CinzelBlack', 'fonts/CinzelDecorative-Black.ttf')
 )
@@ -76,7 +75,9 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 from flask_login import login_required, current_user
 
 from flask import Flask, render_template, request, redirect, url_for, session, flash
-
+from dotenv import load_dotenv
+from dotenv import load_dotenv
+load_dotenv()
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 200 * 1024 * 1024  # 50 MB
 print("MAX LIMIT:", app.config.get("MAX_CONTENT_LENGTH"))
@@ -113,10 +114,14 @@ def test_public():
 
 import os
 
+# =========================
+# DATABASE CONFIG
+# =========================
+
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
 if DATABASE_URL:
-    # Render gives postgres:// which SQLAlchemy dislikes
+    # Render PostgreSQL
     if DATABASE_URL.startswith("postgres://"):
         DATABASE_URL = DATABASE_URL.replace(
             "postgres://",
@@ -125,14 +130,16 @@ if DATABASE_URL:
         )
 
     app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
+
 else:
-    # Local development fallback
-    app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://localhost/bbp_db"
+    # Local SQLite
+    DB_PATH = os.path.join(BASE_DIR, "site.db")
+
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + DB_PATH
 
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 print("📂 Using database:", app.config["SQLALCHEMY_DATABASE_URI"])
-
 
 # =========================
 # DATABASE INIT
@@ -174,12 +181,20 @@ TARGET_AUDIENCES = [
 # =========================
 class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+
     title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=False)
     event_date = db.Column(db.Date, nullable=False)
-    cover_image = db.Column(db.String(500))   # 👈 ADD THIS
+
+    cover_image = db.Column(db.String(500))
     image = db.Column(db.String(500))
     icon = db.Column(db.String(255), nullable=True)
+
+    # =============================
+    # Approval Workflow
+    # =============================
+
+
 
 class EventImage(db.Model):
     __tablename__ = "event_image"
@@ -198,7 +213,81 @@ class EventImage(db.Model):
         backref=db.backref("images", lazy=True)
     )
 
+
+class VolunteerSpotlight(db.Model):
+    __tablename__ = "volunteer_spotlight"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    # Volunteer
+    volunteer_id = db.Column(
+        db.Integer,
+        db.ForeignKey("user.id"),
+        nullable=False
+    )
+
+    volunteer = db.relationship(
+        "User",
+        backref=db.backref("spotlight_submissions", lazy=True)
+    )
+
+    # Spotlight Details
+    title = db.Column(
+        db.String(150),
+        nullable=False
+    )
+
+    description = db.Column(
+        db.Text,
+        nullable=False
+    )
+
+    event_date = db.Column(
+        db.Date,
+        nullable=False
+    )
+
+    # Cloudinary URLs
+    cover_image = db.Column(db.String(500))
+    icon = db.Column(db.String(500))
+
+    # Approval Status
+    status = db.Column(
+        db.String(20),
+        default="Pending",
+        nullable=False
+    )
+
+    submitted_at = db.Column(
+        db.DateTime,
+        default=datetime.utcnow
+    )
     
+class VolunteerSpotlightImage(db.Model):
+    __tablename__ = "volunteer_spotlight_image"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    image_url = db.Column(
+        db.String(500),
+        nullable=False
+    )
+
+    spotlight_id = db.Column(
+        db.Integer,
+        db.ForeignKey("volunteer_spotlight.id"),
+        nullable=False
+    )
+
+    spotlight = db.relationship(
+        "VolunteerSpotlight",
+        backref=db.backref(
+            "images",
+            lazy=True,
+            cascade="all, delete-orphan"
+        )
+    )
+
 
 class Program(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -410,6 +499,19 @@ def admin_required(f):
     return decorated_function
 
 
+from functools import wraps
+
+def volunteer_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+
+        if "volunteer_id" not in session:
+            flash("Please login as a volunteer.", "danger")
+            return redirect(url_for("volunteer_login"))
+
+        return f(*args, **kwargs)
+
+    return decorated_function
 
 
 
@@ -729,7 +831,6 @@ def admin_register():
 
 
 
-
 # =========================
 # ADMIN DASHBOARD
 # =========================
@@ -755,10 +856,27 @@ def admin_dashboard():
         is_completed=False
     ).count()
 
-    # 🔥 NEW COUNTS
-    active_interns = InternProfile.query.filter_by(internship_status="active").count()
-    completed_interns = InternProfile.query.filter_by(internship_status="completed").count()
-    pending_internships = InternProfile.query.filter_by(internship_status="pending").count()
+    # =========================
+    # Internship Statistics
+    # =========================
+    active_interns = InternProfile.query.filter_by(
+        internship_status="active"
+    ).count()
+
+    completed_interns = InternProfile.query.filter_by(
+        internship_status="completed"
+    ).count()
+
+    pending_internships = InternProfile.query.filter_by(
+        internship_status="pending"
+    ).count()
+
+    # =========================
+    # Volunteer Spotlight Drafts
+    # =========================
+    pending_spotlights = VolunteerSpotlight.query.filter_by(
+        status="Pending"
+    ).count()
 
     return render_template(
         "admin_dashboard.html",
@@ -768,14 +886,9 @@ def admin_dashboard():
         certificate_requests=certificate_requests,
         active_interns=active_interns,
         completed_interns=completed_interns,
-        pending_internships=pending_internships
+        pending_internships=pending_internships,
+        pending_spotlights=pending_spotlights
     )
-
-
-
-
-
-
 
 @app.route("/admin/volunteers")
 def admin_volunteers():
@@ -935,6 +1048,90 @@ def admin_events():
         events=events
     )
 
+@app.route("/volunteer/events", methods=["GET", "POST"])
+@volunteer_required
+def volunteer_events():
+
+    if request.method == "POST":
+
+        new_submission = VolunteerSpotlight(
+            volunteer_id=session["volunteer_id"],
+            title=request.form["title"],
+            description=request.form["description"],
+            event_date=datetime.strptime(
+                request.form["event_date"],
+                "%Y-%m-%d"
+            ),
+            status="Pending"
+        )
+
+        db.session.add(new_submission)
+        db.session.flush()
+
+        # ================= ICON =================
+
+        icon_file = request.files.get("icon")
+
+        if icon_file and icon_file.filename != "":
+
+            upload_result = cloudinary.uploader.upload(
+                icon_file,
+                folder="bbp/volunteer/icons",
+                public_id=f"volunteer_icon_{uuid4().hex}"
+            )
+
+            new_submission.icon = upload_result["secure_url"]
+
+        # ================= GALLERY =================
+
+        files = request.files.getlist("gallery_images")
+
+        first_image = True
+
+        for file in files:
+
+            if file and file.filename != "":
+
+                upload_result = cloudinary.uploader.upload(
+                    file,
+                    folder="bbp/volunteer/gallery",
+                    public_id=f"volunteer_{uuid4().hex}"
+                )
+
+                image_url = upload_result["secure_url"]
+
+                image = VolunteerSpotlightImage(
+                    image_url=image_url,
+                    spotlight_id=new_submission.id
+                )
+
+                db.session.add(image)
+
+                if first_image:
+                    new_submission.cover_image = image_url
+                    first_image = False
+
+        db.session.commit()
+
+        flash(
+            "Educational Spotlight submitted successfully. It is now awaiting approval from the Education Officer.",
+            "success"
+        )
+
+        return redirect(url_for("volunteer_events"))
+
+    submissions = VolunteerSpotlight.query.filter_by(
+    volunteer_id=session["volunteer_id"]
+    ).order_by(
+        VolunteerSpotlight.submitted_at.desc()
+    ).all()
+
+    return render_template(
+        "admin_events.html",
+        events=submissions,
+        is_admin=False
+    )
+
 @app.route("/admin/events/edit/<int:event_id>", methods=["GET", "POST"])
 @admin_required
 def edit_event(event_id):
@@ -1029,6 +1226,98 @@ def delete_event(event_id):
 )
 
     return redirect(url_for("admin_events"))
+
+@app.route("/admin/volunteer-spotlights")
+@admin_required
+def admin_volunteer_spotlights():
+
+    submissions = VolunteerSpotlight.query.filter_by(
+        status="Pending"
+    ).order_by(
+        VolunteerSpotlight.submitted_at.desc()
+    ).all()
+
+    return render_template(
+        "admin_volunteer_spotlights.html",
+        submissions=submissions
+    )
+
+@app.route("/admin/spotlight/<int:spotlight_id>/approve", methods=["POST"])
+@admin_required
+def approve_volunteer_spotlight(spotlight_id):
+
+    spotlight = VolunteerSpotlight.query.get_or_404(spotlight_id)
+
+    if spotlight.status == "Approved":
+        flash("This spotlight has already been approved.", "info")
+        return redirect(url_for("admin_volunteer_spotlights"))
+
+    # Create public event
+    new_event = Event(
+        title=spotlight.title,
+        description=spotlight.description,
+        event_date=spotlight.event_date,
+        cover_image=spotlight.cover_image,
+        icon=spotlight.icon
+    )
+
+    db.session.add(new_event)
+    db.session.flush()
+
+    # Copy gallery images
+    for image in spotlight.images:
+        db.session.add(
+            EventImage(
+                filename=image.image_url,
+                event_id=new_event.id
+            )
+        )
+
+    spotlight.status = "Approved"
+
+    log_action(
+        section="Volunteer Spotlight",
+        action="Approve",
+        target_type="VolunteerSpotlight",
+        target_id=spotlight.id,
+        description=f"Approved spotlight '{spotlight.title}' submitted by {spotlight.volunteer.name}"
+    )
+
+    db.session.commit()
+
+    flash(
+        "Spotlight approved and published successfully.",
+        "success"
+    )
+
+    return redirect(url_for("admin_volunteer_spotlights"))
+
+@app.route("/admin/spotlight/<int:spotlight_id>/reject", methods=["POST"])
+@admin_required
+def reject_volunteer_spotlight(spotlight_id):
+
+    spotlight = VolunteerSpotlight.query.get_or_404(spotlight_id)
+
+    spotlight.status = "Rejected"
+
+    log_action(
+        section="Volunteer Spotlight",
+        action="Reject",
+        target_type="VolunteerSpotlight",
+        target_id=spotlight.id,
+        description=f"Rejected spotlight '{spotlight.title}' submitted by {spotlight.volunteer.name}"
+    )
+
+    db.session.commit()
+
+    flash(
+        "Spotlight rejected.",
+        "warning"
+    )
+
+    return redirect(url_for("admin_volunteer_spotlights"))
+
+
 
 @app.route("/admin/crop-cover", methods=["POST"])
 @admin_required
