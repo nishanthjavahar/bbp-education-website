@@ -1242,8 +1242,96 @@ def admin_volunteer_spotlights():
         submissions=submissions
     )
 
+@app.route("/admin/spotlight/<int:spotlight_id>/approve", methods=["POST"])
+@admin_required
+def approve_volunteer_spotlight(spotlight_id):
+
+    spotlight = VolunteerSpotlight.query.get_or_404(spotlight_id)
+
+    # Prevent double approval
+    if spotlight.status == "Approved":
+        flash("This spotlight has already been approved.", "info")
+        return redirect(url_for("admin_volunteer_spotlights"))
+
+    # ============================
+    # Create Public Event
+    # ============================
+
+    new_event = Event(
+        title=spotlight.title,
+        description=spotlight.description,
+        event_date=spotlight.event_date,
+        cover_image=spotlight.cover_image,
+        icon=spotlight.icon
+    )
+
+    db.session.add(new_event)
+    db.session.flush()
+
+    # ============================
+    # Copy Gallery Images
+    # ============================
+
+    for image in spotlight.images:
+        db.session.add(
+            EventImage(
+                filename=image.image_url,
+                event_id=new_event.id
+            )
+        )
+
+    # ============================
+    # Update Status
+    # ============================
+
+    spotlight.status = "Approved"
+
+    log_action(
+        section="Volunteer Spotlight",
+        action="Approve",
+        target_type="VolunteerSpotlight",
+        target_id=spotlight.id,
+        description=f"Approved spotlight '{spotlight.title}' submitted by {spotlight.volunteer.name}"
+    )
+
+    db.session.commit()
+
+    flash(
+        "Spotlight approved and published successfully.",
+        "success"
+    )
+
+    return redirect(url_for("admin_volunteer_spotlights"))
 
 
+
+
+@app.route("/admin/spotlight/<int:spotlight_id>/reject", methods=["POST"])
+@admin_required
+def reject_volunteer_spotlight(spotlight_id):
+
+    spotlight = VolunteerSpotlight.query.get_or_404(spotlight_id)
+
+    spotlight.status = "Rejected"
+
+    log_action(
+        section="Volunteer Spotlight",
+        action="Reject",
+        target_type="VolunteerSpotlight",
+        target_id=spotlight.id,
+        description=f"Rejected spotlight '{spotlight.title}' submitted by {spotlight.volunteer.name}"
+    )
+
+    db.session.commit()
+
+    flash(
+        "Spotlight rejected.",
+        "warning"
+    )
+
+    return redirect(url_for("admin_volunteer_spotlights"))
+
+ 
 @app.route("/admin/spotlight/<int:spotlight_id>/reject", methods=["POST"])
 @admin_required
 def reject_volunteer_spotlight(spotlight_id):
